@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Tween/GTween.h"
+#include "Event/EventContext.h"
 #include "Transition.generated.h"
 
 class UGObject;

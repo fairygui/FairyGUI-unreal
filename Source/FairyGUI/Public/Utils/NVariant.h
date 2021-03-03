@@ -29,7 +29,7 @@ public:
     FNVariant& operator= (float Value);
     FNVariant& operator= (const FString& Value);
     FNVariant& operator= (const FColor& Value);
-    FNVariant& operator= (void *& Value);
+    FNVariant& operator= (void* Value);
 
     bool AsBool() const
     {

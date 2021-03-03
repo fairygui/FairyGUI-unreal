@@ -1,16 +1,16 @@
 #include "FairyBlueprintLibrary.h"
 
-const FUIConfig& UFairyBlueprintLibrary::GetUIConfig() 
-{ 
-    return FUIConfig::Config; 
+const FUIConfig& UFairyBlueprintLibrary::GetUIConfig()
+{
+    return FUIConfig::Config;
 }
 
-void UFairyBlueprintLibrary::SetUIConfig(const FUIConfig& InConfig) 
-{ 
-    FUIConfig::Config = InConfig; 
+void UFairyBlueprintLibrary::SetUIConfig(const FUIConfig& InConfig)
+{
+    FUIConfig::Config = InConfig;
 }
 
-bool UFairyBlueprintLibrary::GetVariantAsBool(UPARAM(ref) FNVariant& InVariant) 
+bool UFairyBlueprintLibrary::GetVariantAsBool(UPARAM(ref) FNVariant& InVariant)
 {
     return InVariant.AsBool();
 }
@@ -72,7 +72,7 @@ FNVariant& UFairyBlueprintLibrary::SetVariantColor(UPARAM(ref) FNVariant& InVari
 
 FNVariant& UFairyBlueprintLibrary::SetVariantUObject(UPARAM(ref) FNVariant& InVariant, UObject* InValue)
 {
-    InVariant = InValue;
+    InVariant = (void*)InValue;
     return InVariant;
 }
 
