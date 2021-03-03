@@ -94,8 +94,8 @@ FNVariant& FNVariant::operator= (const FColor& Value)
     return *this;
 }
 
-FNVariant& FNVariant::operator= (void *& Value)
+FNVariant& FNVariant::operator= (void* Value)
 {
-    TheUnion.SetSubtype<void *>(Value);
+    TheUnion.SetSubtype<void*>(Value);
     return *this;
 }
