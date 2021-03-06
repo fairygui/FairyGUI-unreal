@@ -166,7 +166,7 @@ UGObject* UGList::AddChildAt(UGObject* Child, int32 Index)
         Button->bChangeStateOnClick = false;
     }
 
-    Child->OnClick.AddUniqueDynamic(this, &UGList::OnClickListItem);
+    Child->OnClick.AddUniqueDynamic(this, &UGList::OnClickItemHandler);
 
     return Child;
 }
@@ -174,7 +174,7 @@ UGObject* UGList::AddChildAt(UGObject* Child, int32 Index)
 void UGList::RemoveChildAt(int32 Index)
 {
     UGObject* Child = Children[Index];
-    Child->OnClick.RemoveDynamic(this, &UGList::OnClickListItem);
+    Child->OnClick.RemoveDynamic(this, &UGList::OnClickItemHandler);
 
     UGComponent::RemoveChildAt(Index);
 }
@@ -626,7 +626,7 @@ void UGList::HandleArrowKey(int32 Direction)
     }
 }
 
-void UGList::OnClickListItem(UEventContext* Context)
+void UGList::OnClickItemHandler(UEventContext* Context)
 {
     UGButton* Obj = Cast<UGButton>(Context->GetSender());
     if (Obj != nullptr && SelectionMode != EListSelectionMode::None)
@@ -979,7 +979,7 @@ void UGList::SetVirtual(bool bInLoop)
                 ScrollPane->LoopMode = 1;
         }
 
-        On(FUIEvents::Scroll).AddUObject(this, &UGList::OnScroll);
+        On(FUIEvents::Scroll).AddUObject(this, &UGList::OnScrollHandler);
         SetVirtualListChangedFlag(true);
     }
 }
@@ -1216,7 +1216,7 @@ void UGList::DoRefreshVirtualList()
     HandleScroll(true);
 }
 
-void UGList::OnScroll(UEventContext* Context)
+void UGList::OnScrollHandler(UEventContext* Context)
 {
     HandleScroll(false);
 }

@@ -885,13 +885,13 @@ void UGComponent::HandleControllerChanged(UGController* Controller)
         ScrollPane->HandleControllerChanged(Controller);
 }
 
-void UGComponent::OnAddedToStage(UEventContext* Context)
+void UGComponent::OnAddedToStageHandler(UEventContext* Context)
 {
     for (auto& Transition : Transitions)
         Transition->OnOwnerAddedToStage();
 }
 
-void UGComponent::OnRemovedFromStage(UEventContext* Context)
+void UGComponent::OnRemovedFromStageHandler(UEventContext* Context)
 {
     for (auto& Transition : Transitions)
         Transition->OnOwnerRemovedFromStage();
@@ -1099,8 +1099,8 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
     }
 
     if (Transitions.Num() > 0) {
-        On(FUIEvents::AddedToStage).AddUObject(this, &UGComponent::OnAddedToStage);
-        On(FUIEvents::RemovedFromStage).AddUObject(this, &UGComponent::OnRemovedFromStage);
+        On(FUIEvents::AddedToStage).AddUObject(this, &UGComponent::OnAddedToStageHandler);
+        On(FUIEvents::RemovedFromStage).AddUObject(this, &UGComponent::OnRemovedFromStageHandler);
     }
 
     ApplyAllControllers();

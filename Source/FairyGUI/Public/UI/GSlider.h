@@ -52,7 +52,7 @@ protected:
     void UpdateWithPercent(float Percent, bool bManual);
 
 private:
-    void OnTouchBegin(UEventContext* Context);
+    void OnTouchBeginHandler(UEventContext* Context);
     void OnGripTouchBegin(UEventContext* Context);
     void OnGripTouchMove(UEventContext* Context);
 

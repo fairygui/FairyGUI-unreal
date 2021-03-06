@@ -84,12 +84,12 @@ protected:
     void SetCurrentState();
 
 private:
-    void OnRollOver(UEventContext* Context);
-    void OnRollOut(UEventContext* Context);
-    void OnTouchBegin(UEventContext* Context);
-    void OnTouchEnd(UEventContext* Context);
-    void OnClick(UEventContext* Context);
-    void OnRemovedFromStage(UEventContext* Context);
+    void OnRollOverHandler(UEventContext* Context);
+    void OnRollOutHandler(UEventContext* Context);
+    void OnTouchBeginHandler(UEventContext* Context);
+    void OnTouchEndHandler(UEventContext* Context);
+    void OnClickHandler(UEventContext* Context);
+    void OnRemovedFromStageHandler(UEventContext* Context);
 
     EButtonMode Mode;
     UGObject* TitleObject;

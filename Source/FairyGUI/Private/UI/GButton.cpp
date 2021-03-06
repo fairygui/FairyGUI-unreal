@@ -290,12 +290,12 @@ void UGButton::ConstructExtension(FByteBuffer* Buffer)
     if (Mode == EButtonMode::Common)
         SetState(UP);
 
-    On(FUIEvents::RollOver).AddUObject(this, &UGButton::OnRollOver);
-    On(FUIEvents::RollOut).AddUObject(this, &UGButton::OnRollOut);
-    On(FUIEvents::TouchBegin).AddUObject(this, &UGButton::OnTouchBegin);
-    On(FUIEvents::TouchEnd).AddUObject(this, &UGButton::OnTouchEnd);
-    On(FUIEvents::Click).AddUObject(this, &UGButton::OnClick);
-    On(FUIEvents::RemovedFromStage).AddUObject(this, &UGButton::OnRemovedFromStage);
+    On(FUIEvents::RollOver).AddUObject(this, &UGButton::OnRollOverHandler);
+    On(FUIEvents::RollOut).AddUObject(this, &UGButton::OnRollOutHandler);
+    On(FUIEvents::TouchBegin).AddUObject(this, &UGButton::OnTouchBeginHandler);
+    On(FUIEvents::TouchEnd).AddUObject(this, &UGButton::OnTouchEndHandler);
+    On(FUIEvents::Click).AddUObject(this, &UGButton::OnClickHandler);
+    On(FUIEvents::RemovedFromStage).AddUObject(this, &UGButton::OnRemovedFromStageHandler);
 }
 
 void UGButton::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
@@ -343,7 +343,7 @@ void UGButton::HandleControllerChanged(UGController* Controller)
         SetSelected(RelatedPageID == Controller->GetSelectedPageID());
 }
 
-void UGButton::OnRollOver(UEventContext* Context)
+void UGButton::OnRollOverHandler(UEventContext* Context)
 {
     if (ButtonController == nullptr || !ButtonController->HasPage(OVER))
         return;
@@ -358,7 +358,7 @@ void UGButton::OnRollOver(UEventContext* Context)
     SetState(bSelected ? SELECTED_OVER : OVER);
 }
 
-void UGButton::OnRollOut(UEventContext* Context)
+void UGButton::OnRollOutHandler(UEventContext* Context)
 {
     if (ButtonController == nullptr || !ButtonController->HasPage(OVER))
         return;
@@ -373,7 +373,7 @@ void UGButton::OnRollOut(UEventContext* Context)
     SetState(bSelected ? DOWN : UP);
 }
 
-void UGButton::OnTouchBegin(UEventContext* Context)
+void UGButton::OnTouchBeginHandler(UEventContext* Context)
 {
     if (Context->GetMouseButton() != EKeys::LeftMouseButton)
         return;
@@ -390,7 +390,7 @@ void UGButton::OnTouchBegin(UEventContext* Context)
     }
 }
 
-void UGButton::OnTouchEnd(UEventContext* Context)
+void UGButton::OnTouchEndHandler(UEventContext* Context)
 {
     if (Context->GetMouseButton() != EKeys::LeftMouseButton)
         return;
@@ -417,7 +417,7 @@ void UGButton::OnTouchEnd(UEventContext* Context)
     }
 }
 
-void UGButton::OnClick(UEventContext* Context)
+void UGButton::OnClickHandler(UEventContext* Context)
 {
     if (!Sound.IsEmpty())
         UFairyApplication::Get()->PlaySound(Sound, SoundVolumeScale);
@@ -445,8 +445,8 @@ void UGButton::OnClick(UEventContext* Context)
     }
 }
 
-void UGButton::OnRemovedFromStage(UEventContext* Context)
+void UGButton::OnRemovedFromStageHandler(UEventContext* Context)
 {
     if (bOver)
-        OnRollOut(Context);
+        OnRollOutHandler(Context);
 }

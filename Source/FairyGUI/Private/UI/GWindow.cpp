@@ -7,9 +7,9 @@ UGWindow::UGWindow()
 {
     bBringToFontOnClick = FUIConfig::Config.BringWindowToFrontOnClick;
 
-    On(FUIEvents::AddedToStage).AddUObject(this, &UGWindow::OnAddedToStage);
-    On(FUIEvents::RemovedFromStage).AddUObject(this, &UGWindow::OnRemovedFromStage);
-    On(FUIEvents::TouchBegin).AddUObject(this, &UGWindow::OnTouchBegin);
+    On(FUIEvents::AddedToStage).AddUObject(this, &UGWindow::OnAddedToStageHandler);
+    On(FUIEvents::RemovedFromStage).AddUObject(this, &UGWindow::OnRemovedFromStageHandler);
+    On(FUIEvents::TouchBegin).AddUObject(this, &UGWindow::OnTouchBeginHandler);
 }
 
 UGWindow::~UGWindow()
@@ -64,7 +64,7 @@ void UGWindow::SetDragArea(UGObject * Obj)
         if (DragArea != nullptr)
         {
             DragArea->SetDraggable(false);
-            DragArea->OnDragStart.RemoveDynamic(this, &UGWindow::OnDragStart);
+            DragArea->OnDragStart.RemoveDynamic(this, &UGWindow::OnDragStartHandler);
         }
 
         DragArea = Obj;
@@ -75,7 +75,7 @@ void UGWindow::SetDragArea(UGObject * Obj)
                 DragGraph->DrawRect(0, FColor::Transparent, FColor::Transparent);
 
             DragArea->SetDraggable(true);
-            DragArea->OnDragStart.AddUniqueDynamic(this, &UGWindow::OnDragStart);
+            DragArea->OnDragStart.AddUniqueDynamic(this, &UGWindow::OnDragStartHandler);
         }
     }
 }
@@ -248,7 +248,7 @@ void UGWindow::OnUILoadComplete()
     InternalInit();
 }
 
-void UGWindow::OnAddedToStage(UEventContext * Context)
+void UGWindow::OnAddedToStageHandler(UEventContext * Context)
 {
     if (!bInited)
         Init();
@@ -256,13 +256,13 @@ void UGWindow::OnAddedToStage(UEventContext * Context)
         DoShowAnimation();
 }
 
-void UGWindow::OnRemovedFromStage(UEventContext * Context)
+void UGWindow::OnRemovedFromStageHandler(UEventContext * Context)
 {
     CloseModalWait();
     OnHide();
 }
 
-void UGWindow::OnTouchBegin(UEventContext * Context)
+void UGWindow::OnTouchBeginHandler(UEventContext * Context)
 {
     if (IsShowing() && bBringToFontOnClick)
     {
@@ -270,7 +270,7 @@ void UGWindow::OnTouchBegin(UEventContext * Context)
     }
 }
 
-void UGWindow::OnDragStart(UEventContext * Context)
+void UGWindow::OnDragStartHandler(UEventContext * Context)
 {
     Context->PreventDefault();
 

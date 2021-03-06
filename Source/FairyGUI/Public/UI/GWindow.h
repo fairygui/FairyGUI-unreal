@@ -125,11 +125,11 @@ private:
     void OnUILoadComplete();
     void InternalInit();
 
-    void OnTouchBegin(UEventContext* Context);
+    void OnTouchBeginHandler(UEventContext* Context);
     UFUNCTION()
-    void OnDragStart(UEventContext* Context);
-    void OnAddedToStage(UEventContext* Context);
-    void OnRemovedFromStage(UEventContext* Context);
+    void OnDragStartHandler(UEventContext* Context);
+    void OnAddedToStageHandler(UEventContext* Context);
+    void OnRemovedFromStageHandler(UEventContext* Context);
 
     UPROPERTY(Transient)
     UGObject* ModalWaitPane;
