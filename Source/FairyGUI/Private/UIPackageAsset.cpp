@@ -1,9 +1,9 @@
 #include "UIPackageAsset.h"
 #include "EditorFramework/AssetImportData.h"
 
+#if WITH_EDITORONLY_DATA
 void UUIPackageAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const
 {
-#if WITH_EDITORONLY_DATA
     if (AssetImportData)
     {
         OutTags.Add(FAssetRegistryTag(SourceFileTagName(),
@@ -13,7 +13,7 @@ void UUIPackageAsset::GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) c
         AssetImportData->AppendAssetRegistryTags(OutTags);
 #endif
     }
-#endif
 
     Super::GetAssetRegistryTags(OutTags);
 }
+#endif

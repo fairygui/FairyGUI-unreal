@@ -12,8 +12,10 @@ UNTexture* UNTexture::GetWhiteTexture()
         for (int32 i = 0; i < 16; i++)
             *(MipData + i) = 255;
         NativeTexture->PlatformData->Mips[0].BulkData.Unlock();
+#if WITH_EDITORONLY_DATA
         NativeTexture->CompressionNone = true;
         NativeTexture->MipGenSettings = TMGS_NoMipmaps;
+#endif // WITH_EDITORONLY_DATA
         NativeTexture->CompressionSettings = TC_Default;
         NativeTexture->UpdateResource();
 
