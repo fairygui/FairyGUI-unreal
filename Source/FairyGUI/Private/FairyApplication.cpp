@@ -17,21 +17,31 @@ UFairyApplication* UFairyApplication::Instance = nullptr;
 struct FMyScopedSwitchWorldHack
 {
     FMyScopedSwitchWorldHack(const TSharedPtr<SWindow>& InWindow)
+        : PrevWorld(nullptr)
     {
-        UWorld* PIEWorld = GEditor->GetPIEWorldContext()->World();
-        if (GWorld != PIEWorld)
+        if (GIsEditor)
         {
-            PrevWorld = GWorld;
-            GWorld = PIEWorld;
+			UWorld* PIEWorld = GEditor->GetPIEWorldContext()->World();
+			if (GWorld != PIEWorld)
+			{
+				PrevWorld = GWorld;
+				GWorld = PIEWorld;
+			}
+			else {
+				PrevWorld = nullptr;
+			}
         }
-        else
-            PrevWorld = nullptr;
     }
 
     ~FMyScopedSwitchWorldHack()
     {
-        if (PrevWorld != nullptr)
-            GWorld = PrevWorld;
+        if (GIsEditor)
+        {
+			if (PrevWorld != nullptr)
+			{
+				GWorld = PrevWorld;
+			}
+        }
     }
     UWorld* PrevWorld;
 };
