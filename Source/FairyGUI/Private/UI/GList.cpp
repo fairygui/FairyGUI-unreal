@@ -628,8 +628,8 @@ void UGList::HandleArrowKey(int32 Direction)
 
 void UGList::OnClickItemHandler(UEventContext* Context)
 {
-    UGButton* Obj = Cast<UGButton>(Context->GetSender());
-    if (Obj != nullptr && SelectionMode != EListSelectionMode::None)
+    UGObject* Obj = Context->GetSender();
+    if (Obj->IsA<UGButton>() && SelectionMode != EListSelectionMode::None)
         SetSelectionOnEvent(Obj, Context);
 
     if (ScrollPane != nullptr && bScrollItemToViewOnClick)
