@@ -1,7 +1,9 @@
 #include "Widgets/SDisplayObject.h"
 #include "FairyApplication.h"
 #include "Engine/GameViewportClient.h"
+#include "UI/GObject.h"
 
+bool SDisplayObject::bMindVisibleOnly = false;
 FNoChildren SDisplayObject::NoChildrenInstance;
 FName SDisplayObject::SDisplayObjectTag("SDisplayObjectTag");
 
@@ -122,10 +124,41 @@ void SDisplayObject::UpdateVisibilityFlags()
         SetVisibility(EVisibility::Collapsed);
     else if (!HitTestFlag)
         SetVisibility(EVisibility::HitTestInvisible);
+    else  if (GObject.IsValid() && GObject->GetHitArea() != nullptr)
+        Visibility.BindRaw(this, &SDisplayObject::GetVisibilityFlags);
     else if (!bOpaque)
         SetVisibility(EVisibility::SelfHitTestInvisible);
     else
         SetVisibility(EVisibility::All);
+}
+
+EVisibility SDisplayObject::GetVisibilityFlags() const
+{
+    if (!bMindVisibleOnly && GObject.IsValid() && GObject->GetHitArea() != nullptr)
+    {
+        FVector2D Pos = UFairyApplication::Get()->GetTouchPosition();
+        Pos = GObject->GlobalToLocal(Pos);
+        FBox2D ContentRect(FVector2D::ZeroVector, GObject->GetSize());
+
+        if (!ContentRect.IsInside(Pos))
+            return EVisibility::HitTestInvisible;
+
+        FVector2D LayoutScaleMultiplier = GObject->GetSize() / GObject->SourceSize;
+        if (LayoutScaleMultiplier.ContainsNaN())
+            LayoutScaleMultiplier.Set(1, 1);
+
+        if (!GObject->GetHitArea()->HitTest(ContentRect, LayoutScaleMultiplier, Pos))
+            return EVisibility::HitTestInvisible;
+        else
+            return EVisibility::All;
+    }
+    else
+    {
+        if (!bOpaque)
+            return EVisibility::SelfHitTestInvisible;
+        else
+            return EVisibility::All;
+    }
 }
 
 FVector2D SDisplayObject::ComputeDesiredSize(float) const

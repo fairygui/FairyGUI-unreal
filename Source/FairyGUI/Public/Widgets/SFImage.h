@@ -15,7 +15,7 @@ public:
     SLATE_ARGUMENT(UGObject*, GObject)
     SLATE_END_ARGS()
 
-    MESHFACTORY_TYPE(SFImage)
+    MESHFACTORY_TYPE(SFImage, nullptr)
 
     SFImage();
 

@@ -304,8 +304,8 @@ void UUIPackage::Load(FByteBuffer* Buffer)
     for (int32 i = 0; i < cnt; i++)
     {
         TMap<FString, FString> info;
-        info["id"] = Buffer->ReadS();
-        info["name"] = Buffer->ReadS();
+        info.Add("id", Buffer->ReadS());
+        info.Add("name", Buffer->ReadS());
 
         Dependencies.Push(info);
     }
@@ -491,28 +491,24 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         Buffer->SetPos(nextPos);
     }
 
-    //if (Buffer->seek(indexTablePos, 3))
-    //{
-    //    cnt = buffer->readShort();
-    //    for (int32 i = 0; i < cnt; i++)
-    //    {
-    //        int32 nextPos = buffer->readInt();
-    //        nextPos += buffer->getPos();
+    if (Buffer->Seek(indexTablePos, 3))
+    {
+        cnt = Buffer->ReadShort();
+        for (int32 i = 0; i < cnt; i++)
+        {
+            int32 nextPos = Buffer->ReadInt();
+            nextPos += Buffer->GetPos();
 
-    //        auto it = ItemsByID.find(buffer->readS());
-    //        if (it != ItemsByID.end())
-    //        {
-    //            pi = it->second;
-    //            if (pi->type == PackageItemType::IMAGE)
-    //            {
-    //                pi->pixelHitTestData = new PixelHitTestData();
-    //                pi->pixelHitTestData->load(buffer);
-    //            }
-    //        }
+            TSharedPtr<FPackageItem> pi = ItemsByID.FindRef(Buffer->ReadS());
+            if (pi.IsValid() && pi->Type == EPackageItemType::Image)
+            {
+                pi->PixelHitTestData = MakeShareable(new FPixelHitTestData());
+                pi->PixelHitTestData->Load(Buffer);
+            }
 
-    //        buffer->setPos(nextPos);
-    //    }
-    //}
+            Buffer->SetPos(nextPos);
+        }
+    }
 }
 
 void* UUIPackage::GetItemAsset(const TSharedPtr<FPackageItem>& Item)

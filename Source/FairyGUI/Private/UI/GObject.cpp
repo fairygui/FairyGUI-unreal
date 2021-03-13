@@ -635,7 +635,13 @@ UGObject::FUnifiedEventDelegate& UGObject::GetEventDelegate(const FName& EventTy
     {
         Delegate = &EventDelegates.Add(EventType);
 
-        UProperty* Property = GetClass()->FindPropertyByName(FName(*FString("On").Append(EventType.ToString())));
+#if (ENGINE_MAJOR_VERSION <= 4) && (ENGINE_MINOR_VERSION < 25)
+        UProperty
+#else
+        FProperty
+#endif
+            * Property = GetClass()->FindPropertyByName(FName(*FString("On").Append(EventType.ToString())));
+
         if (Property != nullptr)
             Delegate->DynFunc = Property->ContainerPtrToValuePtr<FGUIEventDynMDelegate>(this);
         else

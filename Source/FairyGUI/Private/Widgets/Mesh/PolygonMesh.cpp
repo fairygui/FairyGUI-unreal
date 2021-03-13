@@ -162,3 +162,36 @@ bool FPolygonMesh::IsPointInTriangle(const FVector2D& p, const FVector2D& a, con
 
     return (u >= 0) && (v >= 0) && (u + v < 1);
 }
+
+bool FPolygonMesh::HitTest(const FBox2D& ContentRect, const FVector2D& LayoutScaleMultiplier, const FVector2D& LocalPoint) const
+{
+    // Algorithm & implementation thankfully taken from:
+    // -> http://alienryderflex.com/polygon/
+    // inspired by Starling
+    int32 len = Points.Num();
+    int32 i;
+    int32 j = len - 1;
+    bool oddNodes = false;
+    FVector2D ContentSize = ContentRect.GetSize();
+
+    for (i = 0; i < len; ++i)
+    {
+        FVector2D vi = Points[i];
+        FVector2D vj = Points[j];
+        if (bUsePercentPositions)
+        {
+            vi *= ContentSize;
+            vj *= ContentSize;
+        }
+
+        if ((vi.Y < LocalPoint.Y && vj.Y >= LocalPoint.Y || vj.Y < LocalPoint.Y && vi.Y >= LocalPoint.Y) && (vi.X <= LocalPoint.X || vj.X <= LocalPoint.X))
+        {
+            if (vi.X + (LocalPoint.Y - vi.Y) / (vj.Y - vi.Y) * (vj.X - vi.X) < LocalPoint.X)
+                oddNodes = !oddNodes;
+        }
+
+        j = i;
+    }
+
+    return oddNodes;
+}

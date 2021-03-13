@@ -20,7 +20,7 @@ public:
     UNTexture* GetTexture() const { return Texture; }
 
     void SetMeshFactory(const TSharedPtr<IMeshFactory>& InMeshFactory);
-    IMeshFactory* GetMeshFactory() { return MeshFactory.Get(); }
+    const TSharedPtr<IMeshFactory>& GetMeshFactory() { return MeshFactory; }
     template <typename T> T& GetMeshFactory();
 
     void SetMeshDirty() { bMeshDirty = true; }

@@ -5,7 +5,7 @@
 class FAIRYGUI_API FRegularPolygonMesh : public IMeshFactory
 {
 public:
-    MESHFACTORY_TYPE(FRegularPolygonMesh)
+    MESHFACTORY_TYPE(FRegularPolygonMesh, nullptr)
 
     FRegularPolygonMesh();
     virtual ~FRegularPolygonMesh() {}

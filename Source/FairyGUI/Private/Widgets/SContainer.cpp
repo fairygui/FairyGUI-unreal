@@ -117,6 +117,8 @@ void SContainer::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedC
 {
     if (Children.Num() > 0)
     {
+        SDisplayObject::bMindVisibleOnly = true;
+
         for (int32 ChildIndex = 0; ChildIndex < Children.Num(); ++ChildIndex)
         {
             const FSlotBase& CurChild = Children[ChildIndex];
@@ -126,6 +128,8 @@ void SContainer::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedC
                     CurWidget, FVector2D::ZeroVector, CurWidget.Get().GetDesiredSize()
                 ));
         }
+
+        SDisplayObject::bMindVisibleOnly = false;
     }
 }
 

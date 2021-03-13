@@ -117,8 +117,8 @@ public:
     //UGObject* getMask() const;
     //void setMask(UGObject* value, bool inverted = false);
 
-    //IHitTest* getHitArea() const { return _hitArea; }
-    //void setHitArea(IHitTest* value);
+    virtual IHitTest* GetHitArea() const override { return HitArea.Get(); }
+    void SetHitArea(const TSharedPtr<IHitTest>& InHitArea);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     UScrollPane* GetScrollPane() const { return ScrollPane; }
@@ -196,6 +196,7 @@ protected:
     TArray<UTransition*> Transitions;
     UPROPERTY(Transient)
     UScrollPane* ScrollPane;
+
     TSharedPtr<SContainer> RootContainer;
     TSharedPtr<SContainer> Container;
     FMargin Margin;
@@ -204,6 +205,7 @@ protected:
     int32 ApexIndex;
     uint8 bBoundsChanged : 1;
     uint8 bTrackBounds : 1;
+    TSharedPtr<IHitTest> HitArea;
 
 private:
     int32 GetInsertPosForSortingChild(UGObject* Child);

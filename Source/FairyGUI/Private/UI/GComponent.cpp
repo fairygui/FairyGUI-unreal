@@ -10,6 +10,7 @@
 #include "UI/GRoot.h"
 #include "Utils/ByteBuffer.h"
 #include "Widgets/SContainer.h"
+#include "Widgets/HitTest.h"
 #include "Tween/GTween.h"
 
 UGComponent::UGComponent() :
@@ -536,6 +537,12 @@ void UGComponent::SetViewHeight(float InViewHeight)
         SetHeight(InViewHeight + Margin.Top + Margin.Bottom);
 }
 
+void UGComponent::SetHitArea(const TSharedPtr<IHitTest>& InHitArea)
+{
+    HitArea = InHitArea;
+    DisplayObject->UpdateVisibilityFlags();
+}
+
 void UGComponent::SetBoundsChangedFlag()
 {
     if (bBoundsChanged)
@@ -851,16 +858,6 @@ void UGComponent::HandleSizeChanged()
 
     if (DisplayObject->GetClipping() != EWidgetClipping::Inherit)
         DisplayObject->SetCullingBoundsExtension(Margin);
-
-    /*
-    if (_hitArea)
-    {
-        PixelHitTest* test = dynamic_cast<PixelHitTest*>(_hitArea);
-        if (sourceSize.width != 0)
-            test->scaleX = _size.width / sourceSize.width;
-        if (sourceSize.height != 0)
-            test->scaleY = _size.height / sourceSize.height;
-    }*/
 }
 
 void UGComponent::HandleGrayedChanged()
@@ -957,7 +954,7 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
     else
         SetupOverflow(overflow);
 
-    if (Buffer->ReadBool()) //clipsoft
+    if (Buffer->ReadBool()) //clip soft
         Buffer->Skip(8);
 
     bBuildingDisplayList = true;
@@ -1075,12 +1072,12 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
     if (!hitTestId.IsEmpty())
     {
         TSharedPtr<FPackageItem> pi = ContentItem->Owner->GetItem(hitTestId);
-        /*if (pi != nullptr && pi->pixelHitTestData != nullptr)
-            setHitArea(new PixelHitTest(pi->pixelHitTestData, i1, i2));*/
+        if (pi.IsValid() && pi->PixelHitTestData.IsValid())
+            SetHitArea(MakeShareable(new FPixelHitTest(pi->PixelHitTestData, i1, i2)));
     }
     else if (i1 != 0 && i2 != -1)
     {
-        //setHitArea(new ChildHitArea(getChildAt(i2)));
+        SetHitArea(MakeShareable(new FChildHitTest(GetChildAt(i2))));
     }
 
     Buffer->Seek(0, 5);

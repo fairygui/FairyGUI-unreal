@@ -5,7 +5,7 @@
 class FAIRYGUI_API FRoundedRectMesh : public IMeshFactory
 {
 public:
-    MESHFACTORY_TYPE(FRoundedRectMesh)
+    MESHFACTORY_TYPE(FRoundedRectMesh, nullptr)
 
     FRoundedRectMesh();
     virtual ~FRoundedRectMesh() {}

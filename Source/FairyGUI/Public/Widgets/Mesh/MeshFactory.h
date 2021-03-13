@@ -3,16 +3,19 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "VertexHelper.h"
+#include "Widgets/HitTest.h"
 
-#define MESHFACTORY_TYPE(TYPE) \
-	static const FName& GetMeshFactoryTypeId() { static FName Type(TEXT(#TYPE)); return Type; } \
-	virtual bool IsMeshFactoryOfType(const FName& Type) const override { return GetMeshFactoryTypeId() == Type; }
+#define MESHFACTORY_TYPE(TYPE, HITTEST) \
+    static const FName& GetMeshFactoryTypeId() { static FName Type(TEXT(#TYPE)); return Type; } \
+    virtual bool IsMeshFactoryOfType(const FName& Type) const override { return GetMeshFactoryTypeId() == Type; } \
+    virtual IHitTest* GetMeshHitTest() const { return (IHitTest*)HITTEST; }
 
 class FAIRYGUI_API IMeshFactory
 {
 public:
     virtual void OnPopulateMesh(FVertexHelper& Helper) = 0;
     virtual bool IsMeshFactoryOfType(const FName& Type) const = 0;
+    virtual IHitTest* GetMeshHitTest() const = 0;
 };
 
 class FAIRYGUI_API FMeshFactory : public  IMeshFactory
@@ -31,6 +34,11 @@ public:
     inline virtual bool IsMeshFactoryOfType(const FName& Type) const override
     {
         return SourceFactory->IsMeshFactoryOfType(Type);
+    }
+
+    inline virtual IHitTest* GetMeshHitTest() const override
+    {
+        return SourceFactory->GetMeshHitTest();
     }
 
     IMeshFactory* SourceFactory;

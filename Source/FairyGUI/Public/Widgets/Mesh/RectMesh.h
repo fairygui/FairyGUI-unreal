@@ -5,7 +5,7 @@
 class FAIRYGUI_API FRectMesh : public IMeshFactory
 {
 public:
-    MESHFACTORY_TYPE(FRectMesh)
+    MESHFACTORY_TYPE(FRectMesh, nullptr)
 
     FRectMesh();
     virtual ~FRectMesh() {}

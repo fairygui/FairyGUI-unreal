@@ -4,6 +4,7 @@
 #include "Engine/Texture2D.h"
 #include "FieldTypes.h"
 #include "FairyCommons.h"
+#include "Widgets/HitTest.h"
 
 class FByteBuffer;
 struct FMovieClipData;
@@ -44,7 +45,7 @@ public:
     TOptional<FBox2D> Scale9Grid;
     bool bScaleByTile;
     int32 TileGridIndice;
-    //PixelHitTestData* pixelHitTestData;
+    TSharedPtr<FPixelHitTestData> PixelHitTestData;
 
     //movie clip
     TSharedPtr<FMovieClipData> MovieClipData;

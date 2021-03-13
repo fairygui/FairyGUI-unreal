@@ -126,3 +126,23 @@ void FEllipseMesh::OnPopulateMesh(FVertexHelper& Helper)
         Helper.AddTriangles(SECTOR_CENTER_TRIANGLES, 24, sides * 3 + 1);
     }
 }
+
+bool FEllipseMesh::HitTest(const FBox2D& ContentRect, const FVector2D& LayoutScaleMultiplier, const FVector2D& LocalPoint) const
+{
+    FVector2D Radius = ContentRect.GetSize() * 0.5f;
+    FVector2D Pos = LocalPoint - Radius - ContentRect.Min;
+    if (FMath::Pow(Pos.X / Radius.X, 2) + FMath::Pow(Pos.Y / Radius.Y, 2) < 1)
+    {
+        if (StartDegree != 0 || EndDegreee != 360)
+        {
+            float deg = FMath::RadiansToDegrees(FMath::Atan2(Pos.Y, Pos.X));
+            if (deg < 0)
+                deg += 360;
+            return deg >= StartDegree && deg <= EndDegreee;
+        }
+        else
+            return true;
+    }
+
+    return false;
+}

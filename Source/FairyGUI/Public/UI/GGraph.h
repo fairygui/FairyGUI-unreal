@@ -39,6 +39,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     bool IsEmpty() const;
 
+    virtual IHitTest* GetHitArea() const override;
+
     virtual FNVariant GetProp(EObjectPropID PropID) const override;
     virtual void SetProp(EObjectPropID PropID, const FNVariant& InValue) override;
 

@@ -108,7 +108,16 @@ void UGGraph::Clear()
 
 bool UGGraph::IsEmpty() const
 {
-    return Content->Graphics.GetMeshFactory() == nullptr;
+    return !Content->Graphics.GetMeshFactory().IsValid();
+}
+
+IHitTest* UGGraph::GetHitArea() const
+{
+    const TSharedPtr<IMeshFactory>& Factory = Content->Graphics.GetMeshFactory();
+    if (Factory.IsValid())
+        return Factory->GetMeshHitTest();
+    else
+        return nullptr;
 }
 
 FNVariant UGGraph::GetProp(EObjectPropID PropID) const

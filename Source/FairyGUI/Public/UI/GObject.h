@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Widgets/SDisplayObject.h"
 #include "Relations.h"
 #include "PackageItem.h"
 #include "UIConfig.h"
 #include "FairyCommons.h"
+#include "Widgets/SDisplayObject.h"
+#include "Widgets/HitTest.h"
 #include "Event/EventContext.h"
 #include "Utils/NVariant.h"
 #include "GObject.generated.h"
@@ -232,6 +233,8 @@ public:
     TSharedPtr<FPackageItem> GetPackageItem() const { return PackageItem; }
     TSharedRef<SDisplayObject> GetDisplayObject() const { return DisplayObject.ToSharedRef(); }
 
+    virtual IHitTest* GetHitArea() const { return nullptr; }
+
     template <typename T> T GetProp(EObjectPropID PropID) const;
     virtual FNVariant GetProp(EObjectPropID PropID) const;
     virtual void SetProp(EObjectPropID PropID, const FNVariant& InValue);
@@ -292,6 +295,7 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "FairyGUI|Event")
     FGUIEventDynMDelegate OnRemoveFromStage;
 
+public:
     UPROPERTY(Transient, BlueprintReadOnly, Category = "FairyGUI")
     FString ID;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
@@ -308,7 +312,7 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
     FNVariant UserData;
-
+    
     bool bUnderConstruct;
     bool bGearLocked;
 
@@ -340,11 +344,11 @@ protected:
     FVector2D Pivot;
     FVector2D Scale;
     FVector2D Skew;
-    bool bPivotAsAnchor;
+    uint8 bPivotAsAnchor : 1;
     float Alpha;
     float Rotation;
-    bool bVisible;
-    bool bGrayed;
+    uint8 bVisible : 1;
+    uint8 bGrayed : 1;
 
 private:
     bool InternalVisible() const;
@@ -369,9 +373,9 @@ private:
     UFUNCTION()
     void OnTouchEndHandler(UEventContext* Context);
 
-    bool bInternalVisible;
-    bool bHandlingController;
-    bool bDraggable;
+    uint8 bInternalVisible : 1;
+    uint8 bHandlingController : 1;
+    uint8 bDraggable : 1;
     int32 SortingOrder;
     FString Tooltips;
     TWeakObjectPtr<UGGroup> Group;
@@ -380,7 +384,7 @@ private:
     FGearBase* Gears[10];
     FVector2D DragTouchStartPos;
     TOptional<FBox2D> DragBounds;
-    bool bDragTesting;
+    uint8 bDragTesting : 1;
     UGTreeNode* TreeNode;
 
     struct FUnifiedEventDelegate
