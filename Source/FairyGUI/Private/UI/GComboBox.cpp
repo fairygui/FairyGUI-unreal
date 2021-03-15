@@ -321,10 +321,10 @@ void UGComboBox::ConstructExtension(FByteBuffer* Buffer)
         DropdownObject->On(FUIEvents::RemovedFromStage).AddUObject(this, &UGComboBox::OnPopupWinClosed);
     }
 
-    On(FUIEvents::RollOver).AddUObject(this, &UGComboBox::OnRollOver);
-    On(FUIEvents::RollOut).AddUObject(this, &UGComboBox::OnRollOut);
-    On(FUIEvents::TouchBegin).AddUObject(this, &UGComboBox::OnTouchBegin);
-    On(FUIEvents::TouchEnd).AddUObject(this, &UGComboBox::OnTouchEnd);
+    On(FUIEvents::RollOver).AddUObject(this, &UGComboBox::OnRollOverHandler);
+    On(FUIEvents::RollOut).AddUObject(this, &UGComboBox::OnRollOutHandler);
+    On(FUIEvents::TouchBegin).AddUObject(this, &UGComboBox::OnTouchBeginHandler);
+    On(FUIEvents::TouchEnd).AddUObject(this, &UGComboBox::OnTouchEndHandler);
 }
 
 void UGComboBox::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
@@ -398,7 +398,7 @@ void UGComboBox::OnClickItem(UEventContext* Context)
     DispatchEvent(FUIEvents::Changed);
 }
 
-void UGComboBox::OnRollOver(UEventContext* Context)
+void UGComboBox::OnRollOverHandler(UEventContext* Context)
 {
     bOver = true;
     if (bDown || (DropdownObject != nullptr && DropdownObject->GetParent() != nullptr))
@@ -407,7 +407,7 @@ void UGComboBox::OnRollOver(UEventContext* Context)
     SetCurrentState();
 }
 
-void UGComboBox::OnRollOut(UEventContext* Context)
+void UGComboBox::OnRollOutHandler(UEventContext* Context)
 {
     bOver = false;
     if (bDown || (DropdownObject != nullptr && DropdownObject->GetParent() != nullptr))
@@ -416,7 +416,7 @@ void UGComboBox::OnRollOut(UEventContext* Context)
     SetCurrentState();
 }
 
-void UGComboBox::OnTouchBegin(UEventContext* Context)
+void UGComboBox::OnTouchBeginHandler(UEventContext* Context)
 {
     if (Context->GetMouseButton() != EKeys::LeftMouseButton)
         return;
@@ -432,7 +432,7 @@ void UGComboBox::OnTouchBegin(UEventContext* Context)
     Context->CaptureTouch();
 }
 
-void UGComboBox::OnTouchEnd(UEventContext* Context)
+void UGComboBox::OnTouchEndHandler(UEventContext* Context)
 {
     if (Context->GetMouseButton() != EKeys::LeftMouseButton)
         return;

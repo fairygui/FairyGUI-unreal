@@ -69,7 +69,7 @@ void UGScrollBar::ConstructExtension(FByteBuffer* buffer)
     GripObject->On(FUIEvents::TouchMove).AddUObject(this, &UGScrollBar::OnGripTouchMove);
     GripObject->On(FUIEvents::TouchEnd).AddUObject(this, &UGScrollBar::OnGripTouchEnd);
 
-    On(FUIEvents::TouchBegin).AddUObject(this, &UGScrollBar::OnTouchBegin);
+    On(FUIEvents::TouchBegin).AddUObject(this, &UGScrollBar::OnTouchBeginHandler);
 
     if (ArrowButton1 != nullptr)
         ArrowButton1->On(FUIEvents::TouchBegin).AddUObject(this, &UGScrollBar::OnArrowButton1Click);
@@ -77,7 +77,7 @@ void UGScrollBar::ConstructExtension(FByteBuffer* buffer)
         ArrowButton2->On(FUIEvents::TouchBegin).AddUObject(this, &UGScrollBar::OnArrowButton2Click);
 }
 
-void UGScrollBar::OnTouchBegin(UEventContext* Context)
+void UGScrollBar::OnTouchBeginHandler(UEventContext* Context)
 {
     Context->StopPropagation();
 

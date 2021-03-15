@@ -211,8 +211,8 @@ private:
 
     void BuildNativeDisplayList(bool bImmediatelly = false);
 
-    void OnAddedToStage(UEventContext* Context);
-    void OnRemovedFromStage(UEventContext* Context);
+    void OnAddedToStageHandler(UEventContext* Context);
+    void OnRemovedFromStageHandler(UEventContext* Context);
 
     int32 SortingChildCount;
     UGController* ApplyingController;

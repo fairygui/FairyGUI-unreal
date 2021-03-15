@@ -199,7 +199,7 @@ private:
     void SetSelectionOnEvent(UGObject* Obj, UEventContext* Context);
 
     UFUNCTION()
-    void OnClickListItem(UEventContext* Context);
+    void OnClickItemHandler(UEventContext* Context);
 
     void UpdateSelectionController(int32 Index);
 
@@ -208,7 +208,7 @@ private:
     void SetVirtualListChangedFlag(bool bLayoutChanged);
     void DoRefreshVirtualList();
 
-    void OnScroll(UEventContext* Context);
+    void OnScrollHandler(UEventContext* Context);
 
     int32 GetIndexOnPos1(float& pos, bool forceUpdate);
     int32 GetIndexOnPos2(float& pos, bool forceUpdate);

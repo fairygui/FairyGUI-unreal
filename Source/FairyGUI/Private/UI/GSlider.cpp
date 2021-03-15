@@ -182,7 +182,7 @@ void UGSlider::ConstructExtension(FByteBuffer* Buffer)
         GripObject->On(FUIEvents::TouchMove).AddUObject(this, &UGSlider::OnGripTouchMove);
     }
 
-    On(FUIEvents::TouchBegin).AddUObject(this, &UGSlider::OnTouchBegin);
+    On(FUIEvents::TouchBegin).AddUObject(this, &UGSlider::OnTouchBeginHandler);
 }
 
 void UGSlider::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
@@ -209,7 +209,7 @@ void UGSlider::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
     Update();
 }
 
-void UGSlider::OnTouchBegin(UEventContext* Context)
+void UGSlider::OnTouchBeginHandler(UEventContext* Context)
 {
     if (!bChangeOnClick)
         return;

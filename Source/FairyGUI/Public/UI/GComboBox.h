@@ -102,10 +102,10 @@ protected:
 private:
 
     void OnClickItem(UEventContext* Context);
-    void OnRollOver(UEventContext* Context);
-    void OnRollOut(UEventContext* Context);
-    void OnTouchBegin(UEventContext* Context);
-    void OnTouchEnd(UEventContext* Context);
+    void OnRollOverHandler(UEventContext* Context);
+    void OnRollOutHandler(UEventContext* Context);
+    void OnTouchBeginHandler(UEventContext* Context);
+    void OnTouchEndHandler(UEventContext* Context);
     void OnPopupWinClosed(UEventContext* Context);
 
     bool bItemsUpdated;
