@@ -147,9 +147,6 @@ void FNGraphics::UpdateMeshNow()
         }
     }
 
-    Vertices += Helper.Vertices;
-    Triangles += Helper.Triangles;
-
     AlphaBackup.SetNum(vertCount, false);
     PositionsBackup.SetNum(vertCount, false);
 
@@ -162,6 +159,9 @@ void FNGraphics::UpdateMeshNow()
 
         PositionsBackup[i] = Vertex.Position;
     }
+
+    Vertices += Helper.Vertices;
+    Triangles += Helper.Triangles;
 }
 
 void FNGraphics::PopulateDefaultMesh(FVertexHelper& Helper)
