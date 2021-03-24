@@ -126,14 +126,14 @@ FTweenerHandle UFairyBlueprintLibrary::TweenVector2(const FVector2D& StartValue,
 
     if (OnUpdate.IsBound())
     {
-        Tweener->OnUpdate(FTweenDelegate::CreateLambda([&OnUpdate](FGTweener* Tweener) {
+        Tweener->OnUpdate(FTweenDelegate::CreateLambda([OnUpdate](FGTweener* Tweener) {
             OnUpdate.ExecuteIfBound(Tweener->Value, Tweener->DeltaValue);
         }));
     }
 
     if (OnComplete.IsBound())
     {
-        Tweener->OnComplete(FSimpleDelegate::CreateLambda([&OnComplete]() {
+        Tweener->OnComplete(FSimpleDelegate::CreateLambda([OnComplete]() {
             OnComplete.ExecuteIfBound();
         }));
     }

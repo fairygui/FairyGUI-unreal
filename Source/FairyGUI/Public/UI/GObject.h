@@ -66,7 +66,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     const FVector2D& GetSize() const { return Size; }
-    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (AdvancedDisplay="bIgnorePivot"))
     void SetSize(const FVector2D& InSize, bool bIgnorePivot = false);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
