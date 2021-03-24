@@ -639,7 +639,7 @@ bool UGObject::DispatchEvent(const FName& EventType, const FNVariant& Data)
 bool UGObject::HasEventListener(const FName& EventType) const
 {
     const FUnifiedEventDelegate& Delegate = const_cast<UGObject*>(this)->GetEventDelegate(EventType);
-    return Delegate.Func.IsBound() || Delegate.DynFunc != nullptr && Delegate.DynFunc->IsBound();
+    return Delegate.Func.IsBound() || (Delegate.DynFunc != nullptr && Delegate.DynFunc->IsBound());
 }
 
 void UGObject::InvokeEventDelegate(UEventContext* Context)
