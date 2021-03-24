@@ -58,7 +58,7 @@ void UGProgressBar::TweenValue(float InValue, float Duration)
     FGTweener* tweener = FGTween::GetTween(TweenHandle);
     if (tweener != nullptr)
     {
-        oldValule = tweener->Value.D;
+        oldValule = tweener->Value.X;
         tweener->Kill(false);
     }
     else
@@ -67,6 +67,7 @@ void UGProgressBar::TweenValue(float InValue, float Duration)
     Value = InValue;
     TweenHandle = FGTween::To(oldValule, Value, Duration)
         ->SetEase(EEaseType::Linear)
+        ->OnUpdate(FTweenDelegate::CreateStatic(&FGTweenAction::SetProgress))
         ->SetTarget(this)
         ->GetHandle();
 }

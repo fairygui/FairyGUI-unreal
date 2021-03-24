@@ -141,5 +141,5 @@ void FGTweenAction::SetAlpha(FGTweener* Tweener)
 void FGTweenAction::SetProgress(FGTweener* Tweener)
 {
     UGProgressBar * target = Cast<UGProgressBar>(Tweener->GetTarget());
-    target->Update(Tweener->Value.D);
+    target->Update(Tweener->Value.X);
 }
