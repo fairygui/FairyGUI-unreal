@@ -78,6 +78,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
     TArray<FString> Values;
 
+    UPROPERTY(BlueprintAssignable, Category = "FairyGUI|Event")
+    FGUIEventDynMDelegate OnChanged;
+
 protected:
     virtual void ConstructExtension(FByteBuffer* Buffer);
     virtual void SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos) override;
