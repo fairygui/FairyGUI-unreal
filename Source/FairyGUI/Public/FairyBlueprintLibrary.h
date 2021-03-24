@@ -60,10 +60,10 @@ public:
     static FNVariant& SetVariantUObject(UPARAM(ref) FNVariant& InVariant, UObject* InValue);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI|Tween", meta = (AutoCreateRefTerm = "OnUpdate,OnComplete"))
-    static FTweenerHandle TweenFloat(float StartValue, float EndValue, EEaseType EaseType, float Duration, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete);
+    static FTweenerHandle TweenFloat(float StartValue, float EndValue, EEaseType EaseType, float Duration, int32 Repeat, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI|Tween", meta = (AutoCreateRefTerm = "OnUpdate,OnComplete"))
-    static FTweenerHandle TweenVector2(const FVector2D& StartValue, const FVector2D& EndValue, EEaseType EaseType, float Duration, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete);
+    static FTweenerHandle TweenVector2(const FVector2D& StartValue, const FVector2D& EndValue, EEaseType EaseType, float Duration, int32 Repeat, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI|Tween")
     static void KillTween(UPARAM(ref) FTweenerHandle& Handle, bool bSetComplete = false);

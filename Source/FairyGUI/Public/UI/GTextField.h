@@ -61,8 +61,7 @@ protected:
     virtual void SetupBeforeAdd(FByteBuffer* Buffer, int32 BeginPos) override;
     virtual void SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos) override;
 
-    virtual void UpdateSize();
-
+    void UpdateSize();
     FString ParseTemplate(const FString& Template);
 
     FString Text;

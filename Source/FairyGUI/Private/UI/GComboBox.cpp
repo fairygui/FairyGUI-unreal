@@ -195,7 +195,7 @@ void UGComboBox::ShowDropdown()
     DropdownObject->SetWidth(Size.X);
     ListObject->EnsureBoundsCorrect();
 
-    UGRoot::Get()->TogglePopup(DropdownObject, this, PopupDirection);
+    GetUIRoot()->TogglePopup(DropdownObject, this, PopupDirection);
     if (DropdownObject->GetParent() != nullptr)
         SetState(UGButton::DOWN);
 }
@@ -304,7 +304,7 @@ void UGComboBox::ConstructExtension(FByteBuffer* Buffer)
     const FString& dropdownResource = Buffer->ReadS();
     if (!dropdownResource.IsEmpty())
     {
-        DropdownObject = Cast<UGComponent>(UUIPackage::CreateObjectFromURL(dropdownResource));
+        DropdownObject = Cast<UGComponent>(UUIPackage::CreateObjectFromURL(dropdownResource, this));
         verifyf(DropdownObject != nullptr, TEXT("should be a component."));
 
         ListObject = Cast<UGList>(DropdownObject->GetChild("list"));

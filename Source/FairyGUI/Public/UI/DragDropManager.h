@@ -15,9 +15,6 @@ public:
     UDragDropManager();
     virtual ~UDragDropManager();
 
-    UFUNCTION(BlueprintPure, Category = "FairyGUI", meta = (DisplayName = "Get DragDropManager"))
-    static UDragDropManager* Get();
-
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     UGLoader* GetAgent() const { return Agent; }
 
@@ -30,6 +27,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void Cancel();
 
+    void CreateAgent();
 private:
     void DelayStartDrag(int32 InUserIndex, int32 InPointerIndex);
     void OnDragEnd(UEventContext* Context);

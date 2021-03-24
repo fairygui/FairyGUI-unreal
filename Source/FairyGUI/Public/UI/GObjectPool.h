@@ -8,7 +8,7 @@ class UGObject;
 class FGObjectPool : public FGCObject
 {
 public:
-    UGObject* GetObject(const FString& URL);
+    UGObject* GetObject(const FString& URL, UObject* WorldContextObject);
     void ReturnObject(UGObject* Obj);
 
     virtual void AddReferencedObjects(FReferenceCollector& Collector) override;

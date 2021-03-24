@@ -8,7 +8,10 @@
 
 UGLoader3D::UGLoader3D()
 {
-    DisplayObject = Content = SNew(SFImage).GObject(this);
+    if (!HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
+    {
+        DisplayObject = Content = SNew(SFImage).GObject(this);
+    }
 }
 
 UGLoader3D::~UGLoader3D()
@@ -153,7 +156,7 @@ void UGLoader3D::UpdateLayout()
             contentSize = SourceSize * ContentScale;
         }
     }
-    
+
     Content->SetSize(contentSize);
 
     FVector2D ContentPosition;

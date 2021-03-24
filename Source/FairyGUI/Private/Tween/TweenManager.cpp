@@ -1,6 +1,8 @@
 #include "Tween/TweenManager.h"
 #include "Tween/GTweener.h"
 
+FTweenManager FTweenManager::Singleton;
+
 FTweenManager::FTweenManager()
 {
     TotalActiveTweens = 0;
@@ -10,8 +12,15 @@ FTweenManager::FTweenManager()
 
 FTweenManager::~FTweenManager()
 {
+    Reset();
+    delete ActiveTweens;
+}
+
+void FTweenManager::Reset()
+{
     for (auto it : TweenerPool)
         delete it;
+    TweenerPool.Reset();
 
     int32 cnt = TotalActiveTweens;
     for (int32 i = 0; i < cnt; i++)
@@ -20,7 +29,7 @@ FTweenManager::~FTweenManager()
         if (tweener != nullptr)
             delete tweener;
     }
-    delete ActiveTweens;
+    TotalActiveTweens = 0;
 }
 
 FGTweener* FTweenManager::CreateTween()

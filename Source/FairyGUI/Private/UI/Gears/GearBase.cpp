@@ -14,7 +14,7 @@
 
 bool FGearBase::bDisableAllTweenEffect = false;
 
-FGearBase* FGearBase::Create(UGObject* InOwner, EType InType)
+TSharedPtr<FGearBase> FGearBase::Create(UGObject* InOwner, EType InType)
 {
     FGearBase* Gear = nullptr;
     switch (InType)
@@ -51,7 +51,7 @@ FGearBase* FGearBase::Create(UGObject* InOwner, EType InType)
         break;
     }
 
-    return Gear;
+    return MakeShareable(Gear);
 }
 
 FGearTweenConfig::FGearTweenConfig():

@@ -11,12 +11,21 @@ UGTextInput::UGTextInput()
         Content->SetOnTextChanged(FOnTextChanged::CreateLambda([this](const FText& InText) {
             Text = InText.ToString();
         }));
+        Content->SetOnTextCommitted(FOnTextCommitted::CreateLambda([this](const FText& InText, ETextCommit::Type InType) {
+            if (InType == ETextCommit::OnEnter)
+                DispatchEvent(FUIEvents::Submit);
+        }));
     }
 }
 
 UGTextInput::~UGTextInput()
 {
 
+}
+
+TSharedRef<SMultiLineEditableText> UGTextInput::GetInputWidget() const
+{
+    return StaticCastSharedRef<SMultiLineEditableText>(Content->Widget);
 }
 
 void UGTextInput::SetText(const FString& InText)
@@ -31,7 +40,7 @@ bool UGTextInput::IsSingleLine() const
 
 void UGTextInput::SetSingleLine(bool bFlag)
 {
-
+    Content->SetSingleLine(bFlag);
 }
 
 void UGTextInput::SetTextFormat(const FNTextFormat& InTextFormat)
@@ -49,9 +58,9 @@ void UGTextInput::SetPrompt(const FString& InPrompt)
     Content->Widget->SetHintText(FText::FromString(FUBBParser::DefaultParser.Parse(InPrompt, true)));
 }
 
-void UGTextInput::SetPassword(bool InPassword)
+void UGTextInput::SetPassword(bool bInPassword)
 {
-    Content->Widget->SetIsPassword(InPassword);
+    Content->SetPassword(bInPassword);
 }
 
 void UGTextInput::SetKeyboardType(int32 InKeyboardType)

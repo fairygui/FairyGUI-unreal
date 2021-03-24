@@ -34,14 +34,11 @@ UGObject::UGObject() :
     static int32 _gInstanceCounter = 1;
     ID.AppendInt(_gInstanceCounter);
 
-    Relations = new FRelations(this);
+    Relations = MakeShareable(new FRelations(this));
 }
 
 UGObject::~UGObject()
 {
-    for (int32 i = 0; i < 10; i++)
-        delete Gears[i];
-    delete Relations;
 }
 
 void UGObject::SetX(float InX)
@@ -69,7 +66,7 @@ void UGObject::SetPosition(const FVector2D& InPosition)
 
         UpdateGear(1);
 
-        if (Parent.IsValid() && Parent->IsA<UGList>())
+        if (Parent.IsValid() && !Parent->IsA<UGList>())
         {
             Parent->SetBoundsChangedFlag();
             if (Group.IsValid())
@@ -140,8 +137,6 @@ void UGObject::SetSize(const FVector2D& InSize, bool bIgnorePivot)
             else
                 HandlePositionChanged();
         }
-        else
-            HandlePositionChanged();
 
         UGGroup* g = Cast<UGGroup>(this);
         if (g != nullptr)
@@ -156,6 +151,7 @@ void UGObject::SetSize(const FVector2D& InSize, bool bIgnorePivot)
             if (Group.IsValid())
                 Group->SetBoundsChangedFlag();
         }
+
         OnSizeChangedEvent.Broadcast();
     }
 }
@@ -176,7 +172,7 @@ void UGObject::Center(bool bRestraint)
     if (Parent.IsValid())
         r = Parent.Get();
     else
-        r = UGRoot::Get();
+        r = GetUIRoot();
 
     SetPosition(((r->Size - Size) / 2).RoundToVector());
     if (bRestraint)
@@ -188,9 +184,9 @@ void UGObject::Center(bool bRestraint)
 
 void UGObject::MakeFullScreen(bool bRestraint)
 {
-    SetSize(UGRoot::Get()->GetSize());
+    SetSize(GetUIRoot()->GetSize());
     if (bRestraint)
-        AddRelation(UGRoot::Get(), ERelationType::Size);
+        AddRelation(GetUIRoot(), ERelationType::Size);
 }
 
 void UGObject::SetPivot(const FVector2D& InPivot, bool bAsAnchor)
@@ -353,12 +349,12 @@ void UGObject::SetTooltips(const FString& InTooltips)
 
 void UGObject::OnRollOverHandler(UEventContext* Context)
 {
-    UGRoot::Get()->ShowTooltips(Tooltips);
+    GetUIRoot()->ShowTooltips(Tooltips);
 }
 
 void UGObject::OnRollOutHandler(UEventContext* Context)
 {
-    UGRoot::Get()->HideTooltips();
+    GetUIRoot()->HideTooltips();
 }
 
 void UGObject::SetDraggable(bool bInDraggable)
@@ -438,12 +434,12 @@ FBox2D UGObject::LocalToGlobalRect(const FBox2D& InRect)
 
 FVector2D UGObject::LocalToRoot(const FVector2D& InPoint)
 {
-    return UGRoot::Get()->GlobalToLocal(LocalToGlobal(InPoint));
+    return GetUIRoot()->GlobalToLocal(LocalToGlobal(InPoint));
 }
 
 FBox2D UGObject::LocalToRootRect(const FBox2D& InRect)
 {
-    return UGRoot::Get()->GlobalToLocalRect(LocalToGlobalRect(InRect));
+    return GetUIRoot()->GlobalToLocalRect(LocalToGlobalRect(InRect));
 }
 
 FVector2D UGObject::GlobalToLocal(const FVector2D& InPoint)
@@ -463,16 +459,18 @@ FBox2D UGObject::GlobalToLocalRect(const FBox2D& InRect)
 
 FVector2D UGObject::RootToLocal(const FVector2D& InPoint)
 {
-    return GlobalToLocal(UGRoot::Get()->LocalToGlobal(InPoint));
+    return GlobalToLocal(GetUIRoot()->LocalToGlobal(InPoint));
 }
 
 FBox2D UGObject::RootToLocalRect(const FBox2D& InRect)
 {
-    return GlobalToLocalRect(UGRoot::Get()->LocalToGlobalRect(InRect));
+    return GlobalToLocalRect(GetUIRoot()->LocalToGlobalRect(InRect));
 }
 
 void UGObject::AddRelation(UGObject* Obj, ERelationType RelationType, bool bUsePercent)
 {
+    verifyf(Obj != this, TEXT("Cannot add relation to self"));
+
     Relations->Add(Obj, RelationType, bUsePercent);
 }
 
@@ -481,15 +479,13 @@ void UGObject::RemoveRelation(UGObject* Obj, ERelationType RelationType)
     Relations->Remove(Obj, RelationType);
 }
 
-FGearBase* UGObject::GetGear(int32 Index)
+const TSharedPtr<FGearBase>& UGObject::GetGear(int32 Index)
 {
-    FGearBase* gear = Gears[Index];
-    if (gear == nullptr)
-    {
-        gear = FGearBase::Create(this, static_cast<FGearBase::EType>(Index));
-        Gears[Index] = gear;
-    }
-    return gear;
+    TSharedPtr<FGearBase>& Gear = Gears[Index];
+    if (!Gear.IsValid())
+        Gear = FGearBase::Create(this, static_cast<FGearBase::EType>(Index));
+
+    return Gear;
 }
 
 void UGObject::UpdateGear(int32 Index)
@@ -497,28 +493,28 @@ void UGObject::UpdateGear(int32 Index)
     if (bUnderConstruct || bGearLocked)
         return;
 
-    FGearBase* gear = Gears[Index];
-    if (gear != nullptr && gear->GetController() != nullptr)
-        gear->UpdateState();
+    const TSharedPtr<FGearBase>& Gear = Gears[Index];
+    if (Gear.IsValid() && Gear->GetController() != nullptr)
+        Gear->UpdateState();
 }
 
 bool UGObject::CheckGearController(int32 Index, UGController* Controller)
 {
-    return Gears[Index] != nullptr && Gears[Index]->GetController() == Controller;
+    return Gears[Index].IsValid() && Gears[Index]->GetController() == Controller;
 }
 
 void UGObject::UpdateGearFromRelations(int32 Index, const FVector2D& Delta)
 {
-    if (Gears[Index] != nullptr)
+    if (Gears[Index].IsValid())
         Gears[Index]->UpdateFromRelations(Delta);
 }
 
 uint32 UGObject::AddDisplayLock()
 {
-    FGearDisplay* gearDisplay = (FGearDisplay*)Gears[0];
-    if (gearDisplay != nullptr && gearDisplay->GetController() != nullptr)
+    const TSharedPtr<FGearDisplay>& GearDisplay = StaticCastSharedPtr<FGearDisplay>(Gears[0]);
+    if (GearDisplay.IsValid() && GearDisplay->GetController() != nullptr)
     {
-        uint32 ret = gearDisplay->AddLock();
+        uint32 ret = GearDisplay->AddLock();
         CheckGearDisplay();
 
         return ret;
@@ -529,10 +525,10 @@ uint32 UGObject::AddDisplayLock()
 
 void UGObject::ReleaseDisplayLock(uint32 Token)
 {
-    FGearDisplay* gearDisplay = (FGearDisplay*)Gears[0];
-    if (gearDisplay != nullptr && gearDisplay->GetController() != nullptr)
+    const TSharedPtr<FGearDisplay>& GearDisplay = StaticCastSharedPtr<FGearDisplay>(Gears[0]);
+    if (GearDisplay.IsValid() && GearDisplay->GetController() != nullptr)
     {
-        gearDisplay->ReleaseLock(Token);
+        GearDisplay->ReleaseLock(Token);
         CheckGearDisplay();
     }
 }
@@ -542,13 +538,13 @@ void UGObject::CheckGearDisplay()
     if (bHandlingController)
         return;
 
-    bool connected = Gears[0] == nullptr || ((FGearDisplay*)Gears[0])->IsConnected();
-    if (Gears[8] != nullptr && Gears[8]->GetType() == FGearBase::EType::Display2)
-        connected = static_cast<FGearDisplay2*>(Gears[8])->Evaluate(connected);
+    bool bConnected = !Gears[0].IsValid() || StaticCastSharedPtr<FGearDisplay>(Gears[0])->IsConnected();
+    if (Gears[8].IsValid() && Gears[8]->GetType() == FGearBase::EType::Display2)
+        bConnected = StaticCastSharedPtr<FGearDisplay2>(Gears[8])->Evaluate(bConnected);
 
-    if (connected != bInternalVisible)
+    if (bConnected != bInternalVisible)
     {
-        bInternalVisible = connected;
+        bInternalVisible = bConnected;
         if (Parent.IsValid())
             Parent->ChildStateChanged(this);
         if (Group.IsValid() && Group->IsExcludeInvisibles())
@@ -569,13 +565,39 @@ void UGObject::SetParent(UGObject* InParent)
 
 void UGObject::SetParentToRoot()
 {
-    SetParent(UGRoot::Get());
+    SetParent(GetUIRoot());
 }
 
 void UGObject::RemoveFromParent()
 {
     if (Parent.IsValid())
         Parent->RemoveChild(this);
+}
+
+bool UGObject::OnStage() const
+{
+    return SDisplayObject::IsWidgetOnStage(DisplayObject);
+}
+
+UGRoot* UGObject::GetUIRoot() const
+{
+    return GetApp()->GetUIRoot();
+}
+
+UFairyApplication* UGObject::GetApp() const
+{
+    if (CachedApp == nullptr)
+        const_cast<UGObject*>(this)->CachedApp = UFairyApplication::Get(const_cast<UGObject*>(this));
+
+    return CachedApp;
+}
+
+UWorld* UGObject::GetWorld() const
+{
+    if (!HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
+        return GetOuter()->GetWorld();
+    else
+        return nullptr;
 }
 
 UGObject* UGObject::CastTo(TSubclassOf<UGObject> ClassType) const
@@ -611,7 +633,7 @@ void UGObject::SetProp(EObjectPropID PropID, const FNVariant& InValue)
 
 bool UGObject::DispatchEvent(const FName& EventType, const FNVariant& Data)
 {
-    return UFairyApplication::Get()->DispatchEvent(EventType, DisplayObject.ToSharedRef(), Data);
+    return GetApp()->DispatchEvent(EventType, DisplayObject.ToSharedRef(), Data);
 }
 
 bool UGObject::HasEventListener(const FName& EventType) const
@@ -690,9 +712,9 @@ void UGObject::HandleControllerChanged(UGController* Controller)
     bHandlingController = true;
     for (int32 i = 0; i < 10; i++)
     {
-        FGearBase* gear = Gears[i];
-        if (gear != nullptr && gear->GetController() == Controller)
-            gear->Apply();
+        const TSharedPtr<FGearBase>& Gear = Gears[i];
+        if (Gear.IsValid() && Gear->GetController() == Controller)
+            Gear->Apply();
     }
     bHandlingController = false;
 
@@ -789,8 +811,7 @@ void UGObject::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
         int16 nextPos = Buffer->ReadShort();
         nextPos += Buffer->GetPos();
 
-        FGearBase* gear = GetGear(Buffer->ReadByte());
-        gear->Setup(Buffer);
+        GetGear(Buffer->ReadByte())->Setup(Buffer);
 
         Buffer->SetPos(nextPos);
     }
@@ -825,12 +846,12 @@ void UGObject::DragBegin(int32 UserIndex, int32 PointerIndex)
         tmp->DispatchEvent(FUIEvents::DragEnd);
     }
 
-    GlobalDragStart = UFairyApplication::Get()->GetTouchPosition(UserIndex, PointerIndex);
+    GlobalDragStart = GetApp()->GetTouchPosition(UserIndex, PointerIndex);
     GlobalRect = LocalToGlobalRect(FBox2D(FVector2D::ZeroVector, Size));
     DraggingObject = this;
     bDragTesting = false;
 
-    UFairyApplication::Get()->AddMouseCaptor(UserIndex, PointerIndex, this);
+    GetApp()->AddMouseCaptor(UserIndex, PointerIndex, this);
 
     OnTouchMove.AddUniqueDynamic(this, &UGObject::OnTouchMoveHandler);
     OnTouchEnd.AddUniqueDynamic(this, &UGObject::OnTouchEndHandler);
@@ -874,7 +895,7 @@ void UGObject::OnTouchMoveHandler(UEventContext* Context)
         FVector2D Pos = Context->GetPointerPosition() - GlobalDragStart + GlobalRect.Min;
         if (DragBounds.IsSet())
         {
-            FBox2D rect = UGRoot::Get()->LocalToGlobalRect(DragBounds.GetValue());
+            FBox2D rect = GetUIRoot()->LocalToGlobalRect(DragBounds.GetValue());
             if (Pos.X < rect.Min.X)
                 Pos.X = rect.Min.X;
             else if (Pos.X + GlobalRect.GetSize().X > rect.Max.X)

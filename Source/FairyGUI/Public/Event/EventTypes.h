@@ -30,4 +30,6 @@ struct FAIRYGUI_API FUIEvents
     static const FName ScrollEnd;
     static const FName PullDownRelease;
     static const FName PullUpRelease;
+
+    static const FName Submit;
 };

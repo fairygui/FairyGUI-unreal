@@ -21,6 +21,7 @@ public:
     FString LastColor;
     FString LastFontSize;
     FDefaultTagHandler DefaultTagHandler;
+    TMap<FString, FTagHandler> Handlers;
 
 protected:
     virtual FString OnTag_URL(const FString& TagName, bool bEnd, const FString& Attr);
@@ -32,8 +33,6 @@ protected:
     virtual FString OnTag_ALIGN(const FString& TagName, bool bEnd, const FString& Attr);
 
     FString GetTagText(bool bRemove);
-
-    TMap<FString, FTagHandler> Handlers;
 
     const FString* Source;
     int32 ReadPos;

@@ -80,6 +80,18 @@ public:
     }
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    int32 GetClickCount() const
+    {
+        return ClickCount;
+    }
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    bool IsDoubleClick() const
+    {
+        return ClickCount == 2;
+    }
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     const FNVariant& GetData() const
     {
         return Data;
@@ -124,6 +136,7 @@ private:
     bool bIsMouseCaptor;
     FPointerEvent* PointerEvent;
     FKeyEvent* KeyEvent;
+    int32 ClickCount;
     FNVariant Data;
 
     friend class UFairyApplication;

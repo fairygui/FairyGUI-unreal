@@ -13,7 +13,7 @@ class FAIRYGUI_API FBitmapFontRun : public ISlateRun, public TSharedFromThis< FB
 {
 public:
 
-    static TSharedRef< FBitmapFontRun > Create(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, int16 InBaseline, const FTextRange& InRange);
+    static TSharedRef< FBitmapFontRun > Create(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, const FTextRange& InRange);
 
 public:
 
@@ -56,12 +56,11 @@ public:
 
 protected:
 
-    FBitmapFontRun(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, int16 InBaseline, const FTextRange& InRange);
+    FBitmapFontRun(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, const FTextRange& InRange);
 
 private:
     TSharedRef< const FString > Text;
     FTextRange Range;
-    int16 Baseline;
 
     TSharedRef<FBitmapFont> Font;
     FBitmapFont::FGlyph* Glyph;

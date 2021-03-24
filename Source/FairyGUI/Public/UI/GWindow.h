@@ -12,13 +12,17 @@ public:
     virtual void Load(FSimpleDelegate Callback) = 0;
 };
 
-DECLARE_DYNAMIC_DELEGATE(FWindowDynDelegate);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FWindowDynDelegate, class UGWindow*, Window);
 
 UCLASS(BlueprintType, Blueprintable)
 class FAIRYGUI_API UGWindow : public UGComponent
 {
     GENERATED_BODY()
+
 public:
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (WorldContext = "WorldContextObject"))
+    static UGWindow* CreateWindow(const FString& PackageName, const FString& ResourceName, UObject* WorldContextObject);
+
     UGWindow();
     virtual ~UGWindow();
 

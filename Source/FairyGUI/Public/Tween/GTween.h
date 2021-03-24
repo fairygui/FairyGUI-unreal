@@ -25,20 +25,21 @@ public:
 
     static void Kill(FTweenerHandle& Handle, bool bSetComplete = false);
     static void Kill(UObject* Target, bool bSetComplete = false);
+};
 
-    struct Action
-    {
-        static void MoveX(FGTweener* Tweener);
-        static void MoveY(FGTweener* Tweener);
-        static void Move(FGTweener* Tweener);
-        static void SetWidth(FGTweener* Tweener);
-        static void SetHeight(FGTweener* Tweener);
-        static void SetSize(FGTweener* Tweener);
-        static void ScaleX(FGTweener* Tweener);
-        static void ScaleY(FGTweener* Tweener);
-        static void ScaleXY(FGTweener* Tweener);
-        static void Rotate(FGTweener* Tweener);
-        static void SetAlpha(FGTweener* Tweener);
-        static void SetProgress(FGTweener* Tweener);
-    };
+class FAIRYGUI_API FGTweenAction
+{
+public:
+    static void MoveX(FGTweener* Tweener);
+    static void MoveY(FGTweener* Tweener);
+    static void Move(FGTweener* Tweener);
+    static void SetWidth(FGTweener* Tweener);
+    static void SetHeight(FGTweener* Tweener);
+    static void SetSize(FGTweener* Tweener);
+    static void ScaleX(FGTweener* Tweener);
+    static void ScaleY(FGTweener* Tweener);
+    static void ScaleXY(FGTweener* Tweener);
+    static void Rotate(FGTweener* Tweener);
+    static void SetAlpha(FGTweener* Tweener);
+    static void SetProgress(FGTweener* Tweener);
 };

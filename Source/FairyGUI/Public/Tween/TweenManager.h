@@ -10,8 +10,11 @@ class UGObject;
 class FAIRYGUI_API FTweenManager : public FTickableGameObject
 {
 public:
+    static FTweenManager Singleton;
+
     FTweenManager();
-    ~FTweenManager();
+    virtual ~FTweenManager();
+    void Reset();
 
     FGTweener* CreateTween();
 

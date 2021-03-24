@@ -5,9 +5,9 @@
 
 const FName UPopupMenu::ClickMenu("ClickMenu");
 
-UPopupMenu* UPopupMenu::CreatePopupMenu(const FString& ResourceURL)
+UPopupMenu* UPopupMenu::CreatePopupMenu(const FString& ResourceURL, UObject* WorldContextObject)
 {
-    UPopupMenu* Instance = NewObject<UPopupMenu>();
+    UPopupMenu* Instance = NewObject<UPopupMenu>(WorldContextObject);
     Instance->Create(ResourceURL);
     return Instance;
 }
@@ -33,7 +33,7 @@ void UPopupMenu::Create(const FString& ResourceURL)
         }
     }
 
-    ContentPane = UUIPackage::CreateObjectFromURL(url)->As<UGComponent>();
+    ContentPane = UUIPackage::CreateObjectFromURL(url, this)->As<UGComponent>();
     ContentPane->On(FUIEvents::AddedToStage).AddUObject(this, &UPopupMenu::OnAddedToStage);
 
     List = ContentPane->GetChild("list")->As<UGList>();
@@ -192,12 +192,12 @@ int32 UPopupMenu::GetItemCount() const
     return List->NumChildren();
 }
 
-void UPopupMenu::Show(UGObject * AtObject, EPopupDirection Dir)
+void UPopupMenu::Show(UGObject* AtObject, EPopupDirection Dir)
 {
-    UGRoot::Get()->ShowPopup(ContentPane, AtObject, Dir);
+    ContentPane->GetUIRoot()->ShowPopup(ContentPane, AtObject, Dir);
 }
 
-void UPopupMenu::OnClickItem(UEventContext * Context)
+void UPopupMenu::OnClickItem(UEventContext* Context)
 {
     UGButton* item = Cast<UGButton>(Context->GetData().AsUObject());
     if (item == nullptr)
@@ -218,12 +218,12 @@ void UPopupMenu::OnClickItem(UEventContext * Context)
             c->SetSelectedIndex(1);
     }
 
-    UGRoot::Get()->HidePopup(ContentPane);
+    ContentPane->GetUIRoot()->HidePopup(ContentPane);
 
     item->DispatchEvent(ClickMenu, Context->GetData());
 }
 
-void UPopupMenu::OnAddedToStage(UEventContext * Context)
+void UPopupMenu::OnAddedToStage(UEventContext* Context)
 {
     List->SetSelectedIndex(-1);
     List->ResizeToFit(INT_MAX, 10);

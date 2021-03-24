@@ -3,6 +3,7 @@
 #include "Slate.h"
 #include "Utils/HTMLElement.h"
 
+class UFairyApplication;
 class FArrangedChildren;
 class FPaintArgs;
 class FSlateWindowElementList;
@@ -12,7 +13,7 @@ enum class ETextHitPoint : uint8;
 class FAIRYGUI_API FLoaderRun : public ISlateRun, public TSharedFromThis< FLoaderRun >, public FGCObject
 {
 public:
-    static TSharedRef< FLoaderRun > Create(const FHTMLElement& InHTMLElement, const TSharedRef< const FString >& InText, int16 InBaseline, const FTextRange& InRange);
+    static TSharedRef< FLoaderRun > Create(UFairyApplication* App, const FHTMLElement& InHTMLElement, const TSharedRef< const FString >& InText, const FTextRange& InRange);
 
 public:
     virtual ~FLoaderRun();
@@ -55,13 +56,12 @@ public:
     virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
 
 protected:
-    FLoaderRun(const FHTMLElement& HTMLElement, const TSharedRef< const FString >& InText, int16 InBaseline, const FTextRange& InRange);
+    FLoaderRun(UFairyApplication* App, const FHTMLElement& HTMLElement, const TSharedRef< const FString >& InText, const FTextRange& InRange);
 
 private:
     TArray< TSharedRef<SWidget> > Children;
     FHTMLElement HTMLElement;
     TSharedRef< const FString > Text;
     FTextRange Range;
-    int16 Baseline;
     class UGLoader* Loader;
 };

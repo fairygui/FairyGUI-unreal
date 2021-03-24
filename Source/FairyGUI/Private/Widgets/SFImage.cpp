@@ -27,6 +27,12 @@ void SFImage::SetTexture(UNTexture* InTexture)
     }
 }
 
+void SFImage::SetNativeSize()
+{
+    if (Graphics.GetTexture() != nullptr)
+        SetSize(Graphics.GetTexture()->GetSize());
+}
+
 void SFImage::SetScale9Grid(const TOptional<FBox2D>& InGridRect)
 {
     Scale9Grid = InGridRect;

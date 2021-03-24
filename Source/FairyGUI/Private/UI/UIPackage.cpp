@@ -1,6 +1,5 @@
 #include "UI/UIPackage.h"
 #include "Sound/SoundBase.h"
-#include "FairyApplication.h"
 #include "UIPackageAsset.h"
 #include "UI/PackageItem.h"
 #include "UI/GObject.h"
@@ -10,10 +9,6 @@
 #include "Utils/ByteBuffer.h"
 
 int32 UUIPackage::Constructing = 0;
-TMap<FString, UUIPackage*> UUIPackage::PackageInstByID;
-TMap<FString, UUIPackage*> UUIPackage::PackageInstByName;
-TMap<FString, FString> UUIPackage::Vars;
-FString UUIPackage::Branch;
 
 struct FAtlasSprite
 {
@@ -31,23 +26,28 @@ struct FAtlasSprite
     bool bRotated;
 };
 
+const FString& UUIPackage::GetBranch()
+{
+    return UUIPackageStatic::Get().Branch;
+}
+
 void UUIPackage::SetBranch(const FString& InBranch)
 {
-    Branch = InBranch;
-    bool empty = Branch.IsEmpty();
-    for (auto& it : PackageInstByID)
+    UUIPackageStatic::Get().Branch = InBranch;
+    bool empty = InBranch.IsEmpty();
+    for (auto& it : UUIPackageStatic::Get().PackageInstByID)
     {
         UUIPackage*& Pkg = it.Value;
         if (empty)
             Pkg->BranchIndex = -1;
         else if (Pkg->Branches.Num() > 0)
-            Pkg->BranchIndex = Pkg->Branches.IndexOfByKey(Branch);
+            Pkg->BranchIndex = Pkg->Branches.Find(InBranch);
     }
 }
 
 FString UUIPackage::GetVar(const FString& VarKey)
 {
-    FString* Value = Vars.Find(VarKey);
+    FString* Value = UUIPackageStatic::Get().Vars.Find(VarKey);
     if (Value != nullptr)
         return *Value;
     else
@@ -56,44 +56,71 @@ FString UUIPackage::GetVar(const FString& VarKey)
 
 void UUIPackage::SetVar(const FString& VarKey, const FString& VarValue)
 {
-    Vars.Add(VarKey, VarValue);
+    UUIPackageStatic::Get().Vars.Add(VarKey, VarValue);
 }
 
-UUIPackage* UUIPackage::AddPackage(UUIPackageAsset* InAsset)
+UUIPackage* UUIPackage::AddPackage(const TCHAR* InAssetPath, UObject* WorldContextObject)
 {
-    UUIPackage* Pkg = PackageInstByID.FindRef(InAsset->GetPathName());
+    UUIPackageAsset* PackageAsset = Cast<UUIPackageAsset>(StaticLoadObject(UUIPackageAsset::StaticClass(), nullptr, InAssetPath));
+    verifyf(PackageAsset != nullptr, TEXT("Asset not found %s"), InAssetPath);
+
+    return AddPackage(PackageAsset, WorldContextObject);
+}
+
+UUIPackage* UUIPackage::AddPackage(UUIPackageAsset* InAsset, UObject* WorldContextObject)
+{
+    UWorld* World = WorldContextObject->GetWorld();
+    verifyf(World != nullptr, TEXT("Null World?"));
+    verifyf(World->IsGameWorld(), TEXT("Not a Game World?"));
+
+    UUIPackage* Pkg = UUIPackageStatic::Get().PackageInstByID.FindRef(InAsset->GetPathName());
     if (Pkg != nullptr)
     {
-        UE_LOG(LogFairyGUI, Warning, TEXT("Package already addedd"));
+        if (Pkg->RefWorlds.Contains(World->GetUniqueID()))
+        {
+            UE_LOG(LogFairyGUI, Warning, TEXT("Package already addedd"));
+        }
+        else
+            Pkg->RefWorlds.Add(World->GetUniqueID());
         return Pkg;
     }
+
+    FByteBuffer Buffer(InAsset->Data.GetData(), 0, InAsset->Data.Num(), false);
+
     Pkg = NewObject<UUIPackage>();
+    Pkg->RefWorlds.Add(World->GetUniqueID());
     Pkg->Asset = InAsset;
     Pkg->AssetPath = InAsset->GetPathName();
-    FByteBuffer Buffer(InAsset->Data.GetData(), 0, InAsset->Data.Num(), false);
     Pkg->Load(&Buffer);
 
-    UFairyApplication::Get()->PackageList.Add(Pkg);
-    PackageInstByID.Add(Pkg->ID, Pkg);
-    PackageInstByID.Add(Pkg->AssetPath, Pkg);
-    PackageInstByName.Add(Pkg->Name, Pkg);
+    UUIPackageStatic::Get().PackageList.Add(Pkg);
+    UUIPackageStatic::Get().PackageInstByID.Add(Pkg->ID, Pkg);
+    UUIPackageStatic::Get().PackageInstByID.Add(Pkg->AssetPath, Pkg);
+    UUIPackageStatic::Get().PackageInstByName.Add(Pkg->Name, Pkg);
+
     return Pkg;
 }
 
-void UUIPackage::RemovePackage(const FString& IDOrName)
+void UUIPackage::RemovePackage(const FString& IDOrName, UObject* WorldContextObject)
 {
-    UUIPackage* pkg = GetPackageByName(IDOrName);
-    if (pkg == nullptr)
-        pkg = GetPackageByID(IDOrName);
+    UUIPackage* Pkg = GetPackageByName(IDOrName);
+    if (Pkg == nullptr)
+        Pkg = GetPackageByID(IDOrName);
 
-    if (pkg != nullptr)
+    if (Pkg != nullptr)
     {
-        TArray<UUIPackage*>& PackageList = UFairyApplication::Get()->PackageList;
-        PackageList.Remove(pkg);
+        UWorld* World = WorldContextObject->GetWorld();
+        verifyf(World != nullptr, TEXT("Null World?"));
+        verifyf(World->IsGameWorld(), TEXT("Not a Game World?"));
+        Pkg->RefWorlds.Remove(World->GetUniqueID());
 
-        PackageInstByID.Remove(pkg->ID);
-        PackageInstByID.Remove(pkg->AssetPath);
-        PackageInstByName.Remove(pkg->Name);
+        if (Pkg->RefWorlds.Num() > 0)
+            return;
+
+        UUIPackageStatic::Get().PackageList.Remove(Pkg);
+        UUIPackageStatic::Get().PackageInstByID.Remove(Pkg->ID);
+        UUIPackageStatic::Get().PackageInstByID.Remove(Pkg->AssetPath);
+        UUIPackageStatic::Get().PackageInstByName.Remove(Pkg->Name);
     }
     else
         UE_LOG(LogFairyGUI, Error, TEXT("invalid package name or id: %s"), *IDOrName);
@@ -101,16 +128,14 @@ void UUIPackage::RemovePackage(const FString& IDOrName)
 
 void UUIPackage::RemoveAllPackages()
 {
-    TArray<UUIPackage*>& PackageList = UFairyApplication::Get()->PackageList;
-    PackageList.Reset();
-
-    PackageInstByID.Reset();
-    PackageInstByName.Reset();
+    UUIPackageStatic::Get().PackageList.Reset();
+    UUIPackageStatic::Get().PackageInstByID.Reset();
+    UUIPackageStatic::Get().PackageInstByName.Reset();
 }
 
 UUIPackage* UUIPackage::GetPackageByID(const FString& PackageID)
 {
-    auto it = PackageInstByID.Find(PackageID);
+    auto it = UUIPackageStatic::Get().PackageInstByID.Find(PackageID);
     if (it != nullptr)
         return *it;
     else
@@ -119,39 +144,29 @@ UUIPackage* UUIPackage::GetPackageByID(const FString& PackageID)
 
 UUIPackage* UUIPackage::GetPackageByName(const FString& PackageName)
 {
-    auto it = PackageInstByName.Find(PackageName);
+    auto it = UUIPackageStatic::Get().PackageInstByName.Find(PackageName);
     if (it != nullptr)
         return *it;
     else
         return nullptr;
 }
 
-UGObject* UUIPackage::CreateObject(const FString& PackageName, const FString& ResourceName, TSubclassOf<UGObject> ClassType)
+UGObject* UUIPackage::CreateObject(const FString& PackageName, const FString& ResourceName, UObject* WorldContextObject, TSubclassOf<UGObject> ClassType)
 {
     UUIPackage* pkg = UUIPackage::GetPackageByName(PackageName);
     if (pkg)
-        return pkg->CreateObject(ResourceName);
+        return pkg->CreateObject(ResourceName, WorldContextObject);
     else
         return nullptr;
 }
 
-UGObject* UUIPackage::CreateObjectFromURL(const FString& URL, TSubclassOf<UGObject> ClassType)
+UGObject* UUIPackage::CreateObjectFromURL(const FString& URL, UObject* WorldContextObject, TSubclassOf<UGObject> ClassType)
 {
     TSharedPtr<FPackageItem> pi = UUIPackage::GetItemByURL(URL);
     if (pi.IsValid())
-        return pi->Owner->CreateObject(pi);
+        return pi->Owner->CreateObject(pi, WorldContextObject);
     else
         return nullptr;
-}
-
-UGWindow* UUIPackage::CreateWindow(const FString& PackageName, const FString& ResourceName)
-{
-    UGObject* ContentPane = CreateObject(PackageName, ResourceName);
-    verifyf(ContentPane->IsA<UGComponent>(), TEXT("Window content should be a component"));
-    UGWindow* Window = NewObject<UGWindow>();
-    Window->SetContentPane(Cast<UGComponent>(ContentPane));
-
-    return Window;
 }
 
 FString UUIPackage::GetItemURL(const FString& PackageName, const FString& ResourceName)
@@ -251,17 +266,17 @@ TSharedPtr<FPackageItem> UUIPackage::GetItemByName(const FString& ResourceName)
         return nullptr;
 }
 
-UGObject* UUIPackage::CreateObject(const FString& ResourceName)
+UGObject* UUIPackage::CreateObject(const FString& ResourceName, UObject* WorldContextObject)
 {
     TSharedPtr<FPackageItem> item = GetItemByName(ResourceName);
     verifyf(item.IsValid(), TEXT("FairyGUI: resource not found - %s in  %s"), *ResourceName, *Name);
 
-    return CreateObject(item);
+    return CreateObject(item, WorldContextObject);
 }
 
-UGObject* UUIPackage::CreateObject(const TSharedPtr<FPackageItem>& Item)
+UGObject* UUIPackage::CreateObject(const TSharedPtr<FPackageItem>& Item, UObject* WorldContextObject)
 {
-    UGObject* g = FUIObjectFactory::NewObject(Item);
+    UGObject* g = FUIObjectFactory::NewObject(Item, WorldContextObject);
     if (g == nullptr)
         return nullptr;
 
@@ -317,8 +332,8 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         if (cnt > 0)
         {
             Buffer->ReadSArray(Branches, cnt);
-            if (!Branch.IsEmpty())
-                BranchIndex = Branches.IndexOfByKey(Branch);
+            if (!UUIPackageStatic::Get().Branch.IsEmpty())
+                BranchIndex = Branches.Find(UUIPackageStatic::Get().Branch);
         }
 
         branchIncluded = cnt > 0;
@@ -719,4 +734,25 @@ void UUIPackage::LoadSound(const TSharedPtr<FPackageItem>& Item)
 
     UObject* SoundObject = StaticLoadObject(USoundBase::StaticClass(), this, *Item->File);
     Sound->SetResourceObject(SoundObject);
+}
+
+UUIPackageStatic* UUIPackageStatic::Singleton = nullptr;
+
+UUIPackageStatic& UUIPackageStatic::Get()
+{
+    if (Singleton == nullptr)
+    {
+        Singleton = NewObject<UUIPackageStatic>();
+        Singleton->AddToRoot();
+    }
+    return *Singleton;
+}
+
+void UUIPackageStatic::Destroy()
+{
+    if (Singleton != nullptr)
+    {
+        Singleton->RemoveFromRoot();
+        Singleton = nullptr;
+    }
 }

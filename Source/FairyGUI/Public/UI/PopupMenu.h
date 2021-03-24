@@ -10,8 +10,10 @@ class FAIRYGUI_API UPopupMenu : public UObject
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    static UPopupMenu* CreatePopupMenu(const FString& ResourceURL = "");
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (WorldContext = "WorldContextObject"))
+    static UPopupMenu* CreatePopupMenu(const FString& ResourceURL, UObject* WorldContextObject);
+
+    static UPopupMenu* CreatePopupMenu(UObject* WorldContextObject) { return CreatePopupMenu("", WorldContextObject); }
 
     UPopupMenu();
     virtual ~UPopupMenu();

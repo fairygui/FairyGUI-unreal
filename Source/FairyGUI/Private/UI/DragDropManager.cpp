@@ -1,14 +1,18 @@
 #include "UI/DragDropManager.h"
 #include "FairyApplication.h"
 
-UDragDropManager* UDragDropManager::Get()
-{
-    return UFairyApplication::Get()->DragDropManager;
-}
-
 UDragDropManager::UDragDropManager()
 {
-    Agent = (UGLoader*)FUIObjectFactory::NewObject(EObjectType::Loader);
+
+}
+
+UDragDropManager::~UDragDropManager()
+{
+}
+
+void UDragDropManager::CreateAgent()
+{
+    Agent = (UGLoader*)FUIObjectFactory::NewObject(EObjectType::Loader, this);
     Agent->Name = TEXT("DragDropAgent");
     Agent->SetTouchable(false);
     Agent->SetDraggable(true);
@@ -20,10 +24,6 @@ UDragDropManager::UDragDropManager()
     Agent->On(FUIEvents::DragEnd).AddUObject(this, &UDragDropManager::OnDragEnd);
 }
 
-UDragDropManager::~UDragDropManager()
-{
-}
-
 void UDragDropManager::StartDrag(const FString& InIcon, const FNVariant& InUserData, int32 InUserIndex, int32 InPointerIndex)
 {
     if (Agent->GetParent() != nullptr)
@@ -31,10 +31,10 @@ void UDragDropManager::StartDrag(const FString& InIcon, const FNVariant& InUserD
 
     UserData = InUserData;
     Agent->SetURL(InIcon);
-    UGRoot::Get()->AddChild(Agent);
-    FVector2D pt = UGRoot::Get()->GlobalToLocal(UFairyApplication::Get()->GetTouchPosition(InUserIndex, InPointerIndex));
+    Agent->SetParentToRoot();
+    FVector2D pt = Agent->GetUIRoot()->GlobalToLocal(Agent->GetApp()->GetTouchPosition(InUserIndex, InPointerIndex));
     Agent->SetPosition(pt);
-    UFairyApplication::Get()->CallAfterSlateTick(FSimpleDelegate::CreateUObject(this, &UDragDropManager::DelayStartDrag, InUserIndex, InPointerIndex));
+    Agent->GetApp()->CallAfterSlateTick(FSimpleDelegate::CreateUObject(this, &UDragDropManager::DelayStartDrag, InUserIndex, InPointerIndex));
 }
 
 void UDragDropManager::DelayStartDrag(int32 InUserIndex, int32 InPointerIndex)
@@ -60,7 +60,7 @@ void UDragDropManager::OnDragEnd(UEventContext* Context)
 
     Agent->RemoveFromParent();
 
-    UGObject* obj = UFairyApplication::Get()->GetObjectUnderPoint(Context->GetPointerPosition());
+    UGObject* obj = Agent->GetApp()->GetObjectUnderPoint(Context->GetPointerPosition());
     while (obj != nullptr)
     {
         if (obj->IsA<UGComponent>())

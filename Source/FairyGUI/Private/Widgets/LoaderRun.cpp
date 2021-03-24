@@ -4,27 +4,26 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Framework/Text/DefaultLayoutBlock.h"
 #include "Framework/Text/RunUtils.h"
+#include "FairyApplication.h"
 #include "UI/UIPackage.h"
 #include "UI/PackageItem.h"
 #include "UI/GLoader.h"
 
-TSharedRef< FLoaderRun > FLoaderRun::Create(const FHTMLElement& InHTMLElement, const TSharedRef< const FString >& InText, int16 InBaseline, const FTextRange& InRange)
+TSharedRef< FLoaderRun > FLoaderRun::Create(UFairyApplication* App, const FHTMLElement& InHTMLElement, const TSharedRef< const FString >& InText, const FTextRange& InRange)
 {
-    return MakeShareable(new FLoaderRun(InHTMLElement, InText, InBaseline, InRange));
+    return MakeShareable(new FLoaderRun(App, InHTMLElement, InText, InRange));
 }
 
-FLoaderRun::FLoaderRun(const FHTMLElement& InHTMLElement, const TSharedRef< const FString >& InText, int16 InBaseline, const FTextRange& InRange)
+FLoaderRun::FLoaderRun(UFairyApplication* App, const FHTMLElement& InHTMLElement, const TSharedRef< const FString >& InText, const FTextRange& InRange)
     : Children()
     , HTMLElement(InHTMLElement)
     , Text(InText)
     , Range(InRange)
-    , Baseline(InBaseline)
 {
-    Loader = NewObject<UGLoader>();
+    Loader = NewObject<UGLoader>(App);
     Children.Add(Loader->GetDisplayObject());
 
     FVector2D SourceSize(0, 0);
-    int32 SourceHeight = 0;
     const FString& Src = HTMLElement.Attributes.Get("src");
     if (Src.Len() > 0)
     {
@@ -137,7 +136,7 @@ int16 FLoaderRun::GetMaxHeight(float Scale) const
 
 int16 FLoaderRun::GetBaseLine(float Scale) const
 {
-    return Baseline * Scale;
+    return -Loader->GetSize().Y * 0.2f * Scale;
 }
 
 FTextRange FLoaderRun::GetTextRange() const
@@ -158,7 +157,7 @@ void FLoaderRun::Move(const TSharedRef<FString>& NewText, const FTextRange& NewR
 
 TSharedRef<IRun> FLoaderRun::Clone() const
 {
-    TSharedRef<FLoaderRun> NewRun = FLoaderRun::Create(HTMLElement, Text, Baseline, Range);
+    TSharedRef<FLoaderRun> NewRun = FLoaderRun::Create(Loader->GetApp(), HTMLElement, Text, Range);
 
     return NewRun;
 }

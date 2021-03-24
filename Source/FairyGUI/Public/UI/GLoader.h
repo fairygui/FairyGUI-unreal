@@ -96,8 +96,11 @@ protected:
     void ClearContent();
     void LoadFromPackage(const FString& ItemURL);
     void LoadExternal();
+    void OnExternalLoaded(FString LoadingURL);
     void UpdateLayout();
     void SetErrorState();
+
+    TSharedPtr<FSoftObjectPath> SoftObjectPath;
 
 private:
     TSharedPtr<class SContainer> Container;
@@ -109,8 +112,8 @@ private:
     ELoaderFillType Fill;
     EAlignType Align;
     EVerticalAlignType VerticalAlign;
-    bool bShowErrorSign;
-    bool bShrinkOnly;
-    bool bAutoSize;
-    bool bUpdatingLayout;
+    uint8 bShowErrorSign : 1;
+    uint8 bShrinkOnly : 1;
+    uint8 bAutoSize : 1;
+    uint8 bUpdatingLayout : 1;
 };

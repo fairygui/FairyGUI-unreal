@@ -32,12 +32,16 @@ public:
     FNTextFormat& GetTextFormat() { return TextFormat; }
     void SetTextFormat(const FNTextFormat& InFormat);
 
+    float GetMaxWidth() const { return MaxWidth; }
+    void SetMaxWidth(float InMaxWidth);
+
+    FVector2D GetTextSize();
+
     virtual FChildren* GetChildren() override;
     virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
 
 protected:
     virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
-    virtual void EnsureSizeCorrect() override;
     virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
     virtual bool ComputeVolatility() const override { return true; }
     void UpdateTextLayout();
@@ -49,6 +53,7 @@ protected:
     bool bHTML;
     EAutoSizeType AutoSize;
     bool bSingleLine;
+    float MaxWidth;
     FNTextFormat TextFormat;
 
     TSharedRef<FSlateTextLayout> TextLayout;

@@ -41,28 +41,36 @@ private:
     class FInputProcessor : public IInputProcessor
     {
     public:
+        FInputProcessor(UFairyApplication* InApplication);
         virtual void Tick(const float DeltaTime, FSlateApplication& SlateApp, TSharedRef<ICursor> Cursor) override;
         virtual bool HandleMouseButtonDownEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
         virtual bool HandleMouseButtonUpEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
         virtual bool HandleMouseMoveEvent(FSlateApplication& SlateApp, const FPointerEvent& MouseEvent) override;
+
+        UFairyApplication* Application;
     };
 
 public:
-    UFUNCTION(BlueprintPure, Category = "FairyGUI", meta = (DisplayName = "Get Application"))
-    static UFairyApplication* Get();
+    UFUNCTION(BlueprintPure, Category = "FairyGUI", meta = (DisplayName = "Get Application", WorldContext = "WorldContextObject"))
+    static UFairyApplication* Get(UObject* WorldContextObject);
 
     static void Destroy();
-    static bool IsStarted() { return Instance != nullptr; }
 
     UFairyApplication();
 
-    UFUNCTION(BlueprintPure, Category = "FairyGUI")
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    UGRoot* GetUIRoot() const;
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    UDragDropManager* GetDragDropManager() const { return DragDropManager; }
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     FVector2D GetTouchPosition(int32 InUserIndex = -1, int32 InPointerIndex = -1);
 
-    UFUNCTION(BlueprintPure, Category = "FairyGUI")
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     int32 GetTouchCount() const;
 
-    UFUNCTION(BlueprintPure, Category = "FairyGUI")
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     UGObject* GetObjectUnderPoint(const FVector2D& ScreenspacePosition);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
@@ -83,6 +91,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void SetSoundVolumeScale(float InVolumeScale);
 
+public:
+    virtual UWorld* GetWorld() const override {
+        return World;
+    }
+
     bool DispatchEvent(const FName& EventType, const TSharedRef<SWidget>& Initiator, const FNVariant& Data = FNVariant::Null);
     void BubbleEvent(const FName& EventType, const TSharedRef<SWidget>& Initiator, const FNVariant& Data = FNVariant::Null);
     void BroadcastEvent(const FName& EventType, const TSharedRef<SWidget>& Initiator, const FNVariant& Data = FNVariant::Null);
@@ -99,12 +112,14 @@ public:
     void OnWidgetMouseLeave(const TSharedRef<SWidget>& Widget, const FPointerEvent& MouseEvent);
     FReply OnWidgetMouseWheel(const TSharedRef<SWidget>& Widget, const FGeometry& MyGeometry, const FPointerEvent& MouseEvent);
 
-    UGObject* GetWidgetGObject(const TSharedPtr<SWidget>& InWidget);
-
     UGameViewportClient* GetViewportClient() const { return ViewportClient; }
     const TSharedPtr<SWidget>& GetViewportWidget() const { return ViewportWidget; }
 
     void CallAfterSlateTick(FSimpleDelegate Callback);
+
+    template< class UserClass, typename... VarTypes >
+    void DelayCall(FTimerHandle& InOutHandle, UserClass* InUserObject, typename TMemFunPtrType<false, UserClass, void(VarTypes...)>::Type inTimerMethod, VarTypes...);
+    void CancelDelayCall(FTimerHandle& InHandle);
 
 private:
     void OnCreate();
@@ -113,9 +128,6 @@ private:
     void PreviewDownEvent(const FPointerEvent& MouseEvent);
     void PreviewUpEvent(const FPointerEvent& MouseEvent);
     void PreviewMoveEvent(const FPointerEvent& MouseEvent);
-
-    void GetDescendants(const TSharedRef<SWidget>& InWidget, TArray<UGObject*>& OutArray);
-    void GetPathToRoot(const TSharedRef<SWidget>& InWidget, TArray<UGObject*>& OutArray);
 
     UEventContext* BorrowEventContext();
     void ReturnEventContext(UEventContext* Context);
@@ -129,15 +141,12 @@ private:
 
 private:
     UPROPERTY(Transient)
-    TArray<UUIPackage*> PackageList;
-    UPROPERTY(Transient)
     UGRoot* UIRoot;
     UPROPERTY(Transient)
     UDragDropManager* DragDropManager;
     UPROPERTY(Transient)
     TArray<UEventContext*> EventContextPool;
 
-    FTweenManager TweenManager;
     TSharedPtr<IInputProcessor> InputProcessor;
     UGameViewportClient* ViewportClient;
     TSharedPtr<SWidget> ViewportWidget;
@@ -149,10 +158,19 @@ private:
     bool bSoundEnabled;
     float SoundVolumeScale;
 
-    static UFairyApplication* Instance;
+    UWorld* World;
 
-    friend class UUIPackage;
-    friend class UGRoot;
-    friend class FGTween;
-    friend class UDragDropManager;
+    static TMap<uint32, UFairyApplication*> Instances;
 };
+
+template< class UserClass, typename... VarTypes >
+void UFairyApplication::DelayCall(FTimerHandle& InOutHandle, UserClass* InUserObject, typename TMemFunPtrType<false, UserClass, void(VarTypes...)>::Type inTimerMethod, VarTypes... Vars)
+{
+    if (!World->GetTimerManager().TimerExists(InOutHandle))
+        InOutHandle = World->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(InUserObject, inTimerMethod, Vars...));
+}
+
+inline void UFairyApplication::CancelDelayCall(FTimerHandle& InHandle)
+{
+    World->GetTimerManager().ClearTimer(InHandle);
+}

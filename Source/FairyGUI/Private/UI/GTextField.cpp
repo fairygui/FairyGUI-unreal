@@ -38,9 +38,10 @@ void UGTextField::SetText(const FString& InText)
         else
             Content->SetText(Text, bSupportHTML);
     }
+    Content->SetMaxWidth(MaxSize.X);
 
-    UpdateGear(6);
     UpdateSize();
+    UpdateGear(6);
 }
 
 void UGTextField::SetUBBEnabled(bool bFlag)
@@ -60,9 +61,6 @@ EAutoSizeType UGTextField::GetAutoSize() const
 void UGTextField::SetAutoSize(EAutoSizeType InAutoSize)
 {
     Content->SetAutoSize(InAutoSize);
-
-    if (!bUnderConstruct)
-        UpdateSize();
 }
 
 bool UGTextField::IsSingleLine() const
@@ -86,8 +84,6 @@ void UGTextField::SetTextFormat(const FNTextFormat& InTextFormat)
     bFormatApplied = true;
 
     UpdateGear(4);
-    if (!bUnderConstruct)
-        UpdateSize();
 }
 
 void UGTextField::ApplyFormat()
@@ -97,7 +93,13 @@ void UGTextField::ApplyFormat()
 
 FVector2D UGTextField::GetTextSize()
 {
-    return FVector2D::ZeroVector;
+    return Content->GetTextSize();
+}
+
+void UGTextField::UpdateSize()
+{
+    if (Content->GetAutoSize() == EAutoSizeType::Both || Content->GetAutoSize() == EAutoSizeType::Height)
+        Content->GetTextSize(); //force text layout update
 }
 
 UGTextField* UGTextField::SetVar(const FString& VarKey, const FString& VarValue)
@@ -167,11 +169,6 @@ FString UGTextField::ParseTemplate(const FString& Template)
         buffer.Append(Template.Mid(pos1, Template.Len() - pos1));
 
     return buffer;
-}
-
-void UGTextField::UpdateSize()
-{
-
 }
 
 FNVariant UGTextField::GetProp(EObjectPropID PropID) const

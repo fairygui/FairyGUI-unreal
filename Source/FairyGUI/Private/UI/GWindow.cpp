@@ -3,6 +3,16 @@
 #include "UI/GRoot.h"
 #include "UI/UIPackage.h"
 
+UGWindow* UGWindow::CreateWindow(const FString& PackageName, const FString& ResourceName, UObject* WorldContextObject)
+{
+    UGObject* ContentPane = UUIPackage::CreateObject(PackageName, ResourceName, WorldContextObject);
+    verifyf(ContentPane->IsA<UGComponent>(), TEXT("Window content should be a component"));
+    UGWindow* Window = NewObject<UGWindow>(WorldContextObject);
+    Window->SetContentPane(Cast<UGComponent>(ContentPane));
+
+    return Window;
+}
+
 UGWindow::UGWindow()
 {
     bBringToFontOnClick = FUIConfig::Config.BringWindowToFrontOnClick;
@@ -82,7 +92,7 @@ void UGWindow::SetDragArea(UGObject * Obj)
 
 void UGWindow::Show()
 {
-    UGRoot::Get()->ShowWindow(this);
+    GetUIRoot()->ShowWindow(this);
 }
 
 void UGWindow::Hide()
@@ -93,7 +103,7 @@ void UGWindow::Hide()
 
 void UGWindow::HideImmediately()
 {
-    UGRoot::Get()->HideWindowImmediately(this);
+    GetUIRoot()->HideWindowImmediately(this);
 }
 
 void UGWindow::ToggleStatus()
@@ -106,7 +116,7 @@ void UGWindow::ToggleStatus()
 
 void UGWindow::BringToFront()
 {
-    UGRoot::Get()->BringToFront(this);
+    GetUIRoot()->BringToFront(this);
 }
 
 bool UGWindow::IsTop() const
@@ -122,7 +132,7 @@ void UGWindow::ShowModalWait(int32 InRequestingCmd)
     if (!FUIConfig::Config.WindowModalWaiting.IsEmpty())
     {
         if (ModalWaitPane == nullptr)
-            ModalWaitPane = UUIPackage::CreateObjectFromURL(FUIConfig::Config.WindowModalWaiting);
+            ModalWaitPane = UUIPackage::CreateObjectFromURL(FUIConfig::Config.WindowModalWaiting, this);
 
         LayoutModalWaitPane();
 
@@ -200,23 +210,23 @@ void UGWindow::AddUISource(TSharedPtr<IUISource> UISource)
 
 void UGWindow::OnInit()
 {
-    InitCallback.ExecuteIfBound();
+    InitCallback.ExecuteIfBound(this);
 }
 
 void UGWindow::OnShown()
 {
-    ShownCallback.ExecuteIfBound();
+    ShownCallback.ExecuteIfBound(this);
 }
 
 void UGWindow::OnHide()
 {
-    HideCallback.ExecuteIfBound();
+    HideCallback.ExecuteIfBound(this);
 }
 
 void UGWindow::DoShowAnimation()
 {
     if (ShowingCallback.IsBound())
-        ShowingCallback.Execute();
+        ShowingCallback.Execute(this);
     else
         OnShown();
 }
@@ -224,7 +234,7 @@ void UGWindow::DoShowAnimation()
 void UGWindow::DoHideAnimation()
 {
     if (HidingCallback.IsBound())
-        HidingCallback.Execute();
+        HidingCallback.Execute(this);
     else
         HideImmediately();
 }

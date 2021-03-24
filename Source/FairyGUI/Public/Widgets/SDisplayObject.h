@@ -29,7 +29,7 @@ public:
     void SetY(float InY);
 
     void SetSize(const FVector2D& InSize);
-    FVector2D GetSize();
+    FVector2D GetSize() const { return Size; }
 
     void SetVisible(bool bInVisible);
     bool IsVisible() const { return bVisible; }
@@ -53,16 +53,19 @@ public:
     virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
     virtual FReply OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
 
-    bool OnStage() const;
-
     TWeakObjectPtr<class UGObject> GObject;
+
+    static bool IsWidgetOnStage(const TSharedPtr<SWidget>& InWidget);
+    static UGObject* GetWidgetGObject(const TSharedPtr<SWidget>& InWidget);
+    static UGObject* GetWidgetGObjectIfOnStage(const TSharedPtr<SWidget>& InWidget);
+    static void GetWidgetDescendants(const TSharedRef<SWidget>& InWidget, TArray<UGObject*>& OutArray);
+    static void GetWidgetPathToRoot(const TSharedRef<SWidget>& InWidget, TArray<UGObject*>& OutArray);
 
 protected:
     virtual FVector2D ComputeDesiredSize(float LayoutScaleMultiplier) const override;
     virtual FChildren* GetChildren() override;
     virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
     virtual int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
-    virtual void EnsureSizeCorrect();
 
     EVisibility GetVisibilityFlags() const;
 

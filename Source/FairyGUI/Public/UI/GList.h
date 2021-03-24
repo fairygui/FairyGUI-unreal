@@ -163,7 +163,7 @@ public:
     }
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    void SetItemProvider(const FDynListItemProvider& InItemProvider) 
+    void SetItemProvider(const FDynListItemProvider& InItemProvider)
     { 
         if (InItemProvider.IsBound())
             ItemProvider = FListItemProvider::CreateUFunction(const_cast<UObject*>(InItemProvider.GetUObject()), InItemProvider.GetFunctionName());

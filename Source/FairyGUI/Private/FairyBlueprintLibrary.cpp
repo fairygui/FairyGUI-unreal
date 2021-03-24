@@ -76,7 +76,7 @@ FNVariant& UFairyBlueprintLibrary::SetVariantUObject(UPARAM(ref) FNVariant& InVa
     return InVariant;
 }
 
-FTweenerHandle UFairyBlueprintLibrary::TweenFloat(float StartValue, float EndValue, EEaseType EaseType, float Duration, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete)
+FTweenerHandle UFairyBlueprintLibrary::TweenFloat(float StartValue, float EndValue, EEaseType EaseType, float Duration, int32 Repeat, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete)
 {
     const UObject* Target = nullptr;
     if (OnUpdate.IsBound())
@@ -89,6 +89,7 @@ FTweenerHandle UFairyBlueprintLibrary::TweenFloat(float StartValue, float EndVal
 
     FGTweener* Tweener = FGTween::To(StartValue, EndValue, Duration)
         ->SetEase(EaseType)
+        ->SetRepeat(Repeat)
         ->SetTarget(const_cast<UObject*>(Target));
     if (OnUpdate.IsBound())
     {
@@ -107,7 +108,7 @@ FTweenerHandle UFairyBlueprintLibrary::TweenFloat(float StartValue, float EndVal
     return Tweener->GetHandle();
 }
 
-FTweenerHandle UFairyBlueprintLibrary::TweenVector2(const FVector2D& StartValue, const FVector2D& EndValue, EEaseType EaseType, float Duration, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete)
+FTweenerHandle UFairyBlueprintLibrary::TweenVector2(const FVector2D& StartValue, const FVector2D& EndValue, EEaseType EaseType, float Duration, int32 Repeat, const FTweenUpdateDynDelegate& OnUpdate, const FSimpleDynDelegate& OnComplete)
 {
     const UObject* Target = nullptr;
     if (OnUpdate.IsBound())
@@ -120,6 +121,7 @@ FTweenerHandle UFairyBlueprintLibrary::TweenVector2(const FVector2D& StartValue,
 
     FGTweener* Tweener = FGTween::To(StartValue, EndValue, Duration)
         ->SetEase(EaseType)
+        ->SetRepeat(Repeat)
         ->SetTarget(const_cast<UObject*>(Target));
 
     if (OnUpdate.IsBound())

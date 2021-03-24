@@ -15,34 +15,41 @@ class FAIRYGUI_API UUIPackage : public UObject
     GENERATED_BODY()
 
 public:
-    static const FString& GetBranch() { return Branch; }
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    static const FString& GetBranch();
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     static void SetBranch(const FString& InBranch);
 
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (DisplayName = "Get UI Global Variable"))
     static FString GetVar(const FString& VarKey);
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (DisplayName = "Set UI Global Variable"))
     static void SetVar(const FString& VarKey, const FString& VarValue);
 
-    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    static UUIPackage* AddPackage(class UUIPackageAsset* InAsset);
+    static UUIPackage* AddPackage(const TCHAR* InAssetPath, UObject* WorldContextObject);
 
-    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    static void RemovePackage(const FString& IDOrName);
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (WorldContext = "WorldContextObject"))
+    static UUIPackage* AddPackage(class UUIPackageAsset* InAsset, UObject* WorldContextObject);
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (WorldContext = "WorldContextObject"))
+    static void RemovePackage(const FString& IDOrName, UObject* WorldContextObject);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     static void RemoveAllPackages();
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    static UUIPackage* GetPackageByName(const FString& PackageName);
-
-    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (DisplayName = "Create UI", DeterminesOutputType = "ClassType"))
-    static UGObject* CreateObject(const FString& PackageName, const FString& ResourceName, TSubclassOf<UGObject> ClassType = nullptr);
-
-    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (DisplayName="Create UI From URL", DeterminesOutputType = "ClassType"))
-    static UGObject* CreateObjectFromURL(const FString& URL, TSubclassOf<UGObject> ClassType = nullptr);
+    static UUIPackage* GetPackageByID(const FString& PackageID);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    static UGWindow* CreateWindow(const FString& PackageName, const FString& ResourceName);
+    static UUIPackage* GetPackageByName(const FString& PackageName);
 
-    static UUIPackage* GetPackageByID(const FString& PackageID);
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (DisplayName = "Create UI", DeterminesOutputType = "ClassType", WorldContext = "WorldContextObject"))
+    static UGObject* CreateObject(const FString& PackageName, const FString& ResourceName, UObject* WorldContextObject, TSubclassOf<UGObject> ClassType = nullptr);
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI", meta = (DisplayName = "Create UI From URL", DeterminesOutputType = "ClassType", WorldContext = "WorldContextObject"))
+    static UGObject* CreateObjectFromURL(const FString& URL, UObject* WorldContextObject, TSubclassOf<UGObject> ClassType = nullptr);
+
     static FString GetItemURL(const FString& PackageName, const FString& ResourceName);
     static TSharedPtr<FPackageItem> GetItemByURL(const FString& URL);
     static FString NormalizeURL(const FString& URL);
@@ -55,6 +62,7 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     const FString& GetID() const { return ID; }
+
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     const FString& GetName() const { return Name; }
 
@@ -62,8 +70,8 @@ public:
     TSharedPtr<FPackageItem> GetItemByName(const FString& ResourceName);
     void* GetItemAsset(const TSharedPtr<FPackageItem>& Item);
 
-    UGObject* CreateObject(const FString& ResourceName);
-    UGObject* CreateObject(const TSharedPtr<FPackageItem>& Item);
+    UGObject* CreateObject(const FString& ResourceName, UObject* WorldContextObject);
+    UGObject* CreateObject(const TSharedPtr<FPackageItem>& Item, UObject* WorldContextObject);
 
 private:
     void Load(FByteBuffer* Buffer);
@@ -88,12 +96,26 @@ private:
     TArray<TMap<FString, FString>> Dependencies;
     TArray<FString> Branches;
     int32 BranchIndex;
-
-    static TMap<FString, UUIPackage*> PackageInstByID;
-    static TMap<FString, UUIPackage*> PackageInstByName;
-    static TMap<FString, FString> Vars;
-    static FString Branch;
+    TSet<uint32> RefWorlds;
 
     friend class FPackageItem;
     friend class UFairyApplication;
+};
+
+UCLASS(Transient)
+class FAIRYGUI_API UUIPackageStatic : public UObject
+{
+    GENERATED_BODY()
+
+public:
+    static UUIPackageStatic* Singleton;
+    static UUIPackageStatic& Get();
+    static void Destroy();
+
+    UPROPERTY(Transient)
+    TArray<UUIPackage*> PackageList;
+    TMap<FString, UUIPackage*> PackageInstByID;
+    TMap<FString, UUIPackage*> PackageInstByName;
+    TMap<FString, FString> Vars;
+    FString Branch;
 };

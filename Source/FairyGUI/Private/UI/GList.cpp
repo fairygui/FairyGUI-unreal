@@ -136,9 +136,9 @@ UGObject* UGList::GetFromPool(const FString& URL)
 {
     UGObject* ret;
     if (URL.Len() == 0)
-        ret = Pool->GetObject(DefaultItem);
+        ret = Pool->GetObject(DefaultItem, this);
     else
-        ret = Pool->GetObject(URL);
+        ret = Pool->GetObject(URL, this);
     if (ret != nullptr)
         ret->SetVisible(true);
     return ret;
@@ -1022,7 +1022,7 @@ void UGList::SetNumItems(int32 InNumItems)
         }
 
         if (VirtualListChanged != 0)
-            CancelDelayCall(RefreshTimerHandle);
+            GetApp()->CancelDelayCall(RefreshTimerHandle);
 
         DoRefreshVirtualList();
     }
@@ -1094,7 +1094,7 @@ void UGList::CheckVirtualList()
     if (VirtualListChanged != 0)
     {
         DoRefreshVirtualList();
-        CancelDelayCall(RefreshTimerHandle);
+        GetApp()->CancelDelayCall(RefreshTimerHandle);
     }
 }
 
@@ -1105,7 +1105,7 @@ void UGList::SetVirtualListChangedFlag(bool bLayoutChanged)
     else if (VirtualListChanged == 0)
         VirtualListChanged = 1;
 
-    DelayCall(RefreshTimerHandle, this, &UGList::DoRefreshVirtualList);
+    GetApp()->DelayCall(RefreshTimerHandle, this, &UGList::DoRefreshVirtualList);
 }
 
 void UGList::DoRefreshVirtualList()
@@ -1511,7 +1511,7 @@ bool UGList::HandleScroll1(bool forceUpdate)
             }
             else
             {
-                ii.Obj = Pool->GetObject(url);
+                ii.Obj = Pool->GetObject(url, this);
                 if (forward)
                     AddChildAt(ii.Obj, curIndex - newFirstIndex);
                 else
@@ -1678,7 +1678,7 @@ bool UGList::HandleScroll2(bool forceUpdate)
             }
             else
             {
-                ii.Obj = Pool->GetObject(url);
+                ii.Obj = Pool->GetObject(url, this);
                 if (forward)
                     AddChildAt(ii.Obj, curIndex - newFirstIndex);
                 else
@@ -1841,7 +1841,7 @@ void UGList::HandleScroll3(bool forceUpdate)
                     url = UUIPackage::NormalizeURL(url);
                 }
 
-                ii.Obj = Pool->GetObject(url);
+                ii.Obj = Pool->GetObject(url, this);
                 AddChildAt(ii.Obj, insertIndex);
             }
             else
@@ -2434,7 +2434,7 @@ void UGList::ReadItems(FByteBuffer* Buffer)
                 continue;
             }
         }
-
+        
         UGObject* obj = GetFromPool(*str);
         if (obj != nullptr)
         {

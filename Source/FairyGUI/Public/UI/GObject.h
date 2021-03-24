@@ -75,7 +75,7 @@ public:
     void MakeFullScreen(bool bRestraint = false);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    const FVector2D& getPivot() const { return Pivot; }
+    const FVector2D& GetPivot() const { return Pivot; }
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void SetPivot(const FVector2D& InPivot, bool bAsAnchor = false);
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
@@ -199,13 +199,15 @@ public:
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     FBox2D LocalToRootRect(const FBox2D& InRect);
 
-    FRelations* GetRelations() { return Relations; }
+    const TSharedPtr<FRelations>& GetRelations() { return Relations; }
+
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void AddRelation(UGObject* Obj, ERelationType RelationType, bool bUsePercent = false);
+
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void RemoveRelation(UGObject* Obj, ERelationType RelationType);
 
-    FGearBase* GetGear(int32 Index);
+    const TSharedPtr<FGearBase>& GetGear(int32 Index);
     bool CheckGearController(int32 Index, UGController* Controller);
     uint32 AddDisplayLock();
     void ReleaseDisplayLock(uint32 Token);
@@ -220,7 +222,13 @@ public:
     void SetParentToRoot();
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    bool OnStage() const { return DisplayObject->OnStage(); }
+    UGRoot* GetUIRoot() const;
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    UFairyApplication* GetApp() const;
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    bool OnStage() const;
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void RemoveFromParent();
@@ -229,6 +237,9 @@ public:
     UGObject* CastTo(TSubclassOf<UGObject> ClassType) const;
 
     template <typename T> T* As() const;
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    UGTreeNode* GetTreeNode() const { return TreeNode; }
 
     TSharedPtr<FPackageItem> GetPackageItem() const { return PackageItem; }
     TSharedRef<SDisplayObject> GetDisplayObject() const { return DisplayObject.ToSharedRef(); }
@@ -240,8 +251,6 @@ public:
     virtual void SetProp(EObjectPropID PropID, const FNVariant& InValue);
 
     virtual void ConstructFromResource();
-
-    UGTreeNode* GetTreeNode() const { return TreeNode; }
 
 public:
     bool DispatchEvent(const FName& EventType, const FNVariant& Data = FNVariant::Null);
@@ -316,7 +325,11 @@ public:
     bool bUnderConstruct;
     bool bGearLocked;
 
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     static UGObject* GetDraggingObject() { return DraggingObject.Get(); }
+
+public:
+    virtual UWorld* GetWorld() const override;
 
 protected:
     TWeakObjectPtr<UGComponent> Parent;
@@ -380,12 +393,13 @@ private:
     FString Tooltips;
     TWeakObjectPtr<UGGroup> Group;
     float SizePercentInGroup;
-    FRelations* Relations;
-    FGearBase* Gears[10];
+    TSharedPtr<FRelations> Relations;
+    TSharedPtr<FGearBase> Gears[10];
     FVector2D DragTouchStartPos;
     TOptional<FBox2D> DragBounds;
     uint8 bDragTesting : 1;
     UGTreeNode* TreeNode;
+    UFairyApplication* CachedApp;
 
     struct FUnifiedEventDelegate
     {
@@ -407,6 +421,7 @@ private:
     friend class UGGroup;
     friend class FRelationItem;
     friend class FUIObjectFactory;
+    friend class UGTree;
 };
 
 template <typename T>

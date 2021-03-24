@@ -214,7 +214,7 @@ void UGComponent::SetChildIndex(UGObject* Child, int32 Index)
 {
     verifyf(Child != nullptr, TEXT("Argument must be non-nil"));
 
-    int32 OldIndex = Children.IndexOfByKey(Child);
+    int32 OldIndex = Children.Find(Child);
     verifyf(OldIndex != -1, TEXT("Not a child of this container"));
 
     if (Child->SortingOrder != 0) //no effect
@@ -234,7 +234,7 @@ int UGComponent::SetChildIndexBefore(UGObject* Child, int32 Index)
 {
     verifyf(Child != nullptr, TEXT("Argument must be non-nil"));
 
-    int32 OldIndex = Children.IndexOfByKey(Child);
+    int32 OldIndex = Children.Find(Child);
     verifyf(OldIndex != -1, TEXT("Not a child of this container"));
 
     if (Child->SortingOrder != 0) //no effect
@@ -305,8 +305,8 @@ void UGComponent::SwapChildren(UGObject* Child1, UGObject* Child2)
     verifyf(Child1 != nullptr, TEXT("Argument1 must be non-nil"));
     verifyf(Child2 != nullptr, TEXT("Argument2 must be non-nil"));
 
-    int32 Index1 = Children.IndexOfByKey(Child1);
-    int32 Index2 = Children.IndexOfByKey(Child2);
+    int32 Index1 = Children.Find(Child1);
+    int32 Index2 = Children.Find(Child2);
 
     verifyf(Index1 != -1, TEXT("Not a child of this container"));
     verifyf(Index2 != -1, TEXT("Not a child of this container"));
@@ -400,7 +400,7 @@ void UGComponent::RemoveController(UGController* Controller)
 {
     verifyf(Controller != nullptr, TEXT("Argument must be non-nil"));
 
-    int32 Index = Controllers.IndexOfByKey(Controller);
+    int32 Index = Controllers.Find(Controller);
     verifyf(Index != -1, TEXT("controller not exists"));
 
     ApplyController(Controller);
@@ -553,7 +553,7 @@ void UGComponent::SetBoundsChangedFlag()
 
     bBoundsChanged = true;
 
-    DelayCall(UpdateBoundsTimerHandle, this, &UGComponent::EnsureBoundsCorrect);
+    GetApp()->DelayCall(UpdateBoundsTimerHandle, this, &UGComponent::EnsureBoundsCorrect);
 }
 
 void UGComponent::EnsureBoundsCorrect()
@@ -690,7 +690,7 @@ void UGComponent::ChildSortingOrderChanged(UGObject* Child, int32 OldValue, int3
         if (OldValue == 0)
             SortingChildCount++;
 
-        int32 OldIndex = Children.IndexOfByKey(Child);
+        int32 OldIndex = Children.Find(Child);
         int32 Index = GetInsertPosForSortingChild(Child);
         if (OldIndex < Index)
             MoveChild(Child, OldIndex, Index - 1);
@@ -703,7 +703,7 @@ void UGComponent::BuildNativeDisplayList(bool bImmediatelly)
 {
     if (!bImmediatelly)
     {
-        DelayCall(BuildDisplayListTimerHandle, this, &UGComponent::BuildNativeDisplayList, true);
+        GetApp()->DelayCall(BuildDisplayListTimerHandle, this, &UGComponent::BuildNativeDisplayList, true);
         return;
     }
 
@@ -1008,11 +1008,11 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
 
             if (pi.IsValid())
             {
-                Child = FUIObjectFactory::NewObject(pi);
+                Child = FUIObjectFactory::NewObject(pi, this);
                 Child->ConstructFromResource();
             }
             else
-                Child = FUIObjectFactory::NewObject(type);
+                Child = FUIObjectFactory::NewObject(type, this);
         }
 
         Child->bUnderConstruct = true;

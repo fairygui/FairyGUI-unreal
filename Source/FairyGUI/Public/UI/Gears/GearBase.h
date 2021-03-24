@@ -54,7 +54,7 @@ public:
 
     void Setup(FByteBuffer* Buffer);
 
-    static FGearBase* Create(UGObject* InOwner, EType InType);
+    static TSharedPtr<FGearBase> Create(UGObject* InOwner, EType InType);
     static bool bDisableAllTweenEffect;
 
 protected:

@@ -91,7 +91,7 @@ void UGGroup::SetBoundsChangedFlag(bool bPositionChangedOnly)
 
             if (Layout != EGroupLayoutType::None)
             {
-                DelayCall(UpdateBoundsTimerHandle, this, &UGGroup::EnsureBoundsCorrect);
+                GetApp()->DelayCall(UpdateBoundsTimerHandle, this, &UGGroup::EnsureBoundsCorrect);
             }
         }
     }

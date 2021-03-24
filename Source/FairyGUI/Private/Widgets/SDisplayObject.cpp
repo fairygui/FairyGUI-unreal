@@ -70,17 +70,6 @@ void SDisplayObject::SetSize(const FVector2D& InSize)
     }
 }
 
-FVector2D SDisplayObject::GetSize()
-{
-    EnsureSizeCorrect();
-    return Size;
-}
-
-void SDisplayObject::EnsureSizeCorrect()
-{
-
-}
-
 void SDisplayObject::SetVisible(bool bInVisible)
 {
     if (bVisible != bInVisible)
@@ -136,7 +125,7 @@ EVisibility SDisplayObject::GetVisibilityFlags() const
 {
     if (!bMindVisibleOnly && GObject.IsValid() && GObject->GetHitArea() != nullptr)
     {
-        FVector2D Pos = UFairyApplication::Get()->GetTouchPosition();
+        FVector2D Pos = GObject->GetApp()->GetTouchPosition();
         Pos = GObject->GlobalToLocal(Pos);
         FBox2D ContentRect(FVector2D::ZeroVector, GObject->GetSize());
 
@@ -180,54 +169,143 @@ int32 SDisplayObject::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedG
     return LayerId;
 }
 
-bool SDisplayObject::OnStage() const
-{
-    if (!UFairyApplication::IsStarted())
-        return false;
-
-    TSharedPtr<SWidget> ViewportWidget = UFairyApplication::Get()->GetViewportWidget();
-    TSharedPtr<SWidget> Ptr = GetParentWidget();
-    while (Ptr.IsValid())
-    {
-        if (Ptr == ViewportWidget)
-            return true;
-
-        Ptr = Ptr->GetParentWidget();
-    }
-    return false;
-}
-
 FReply SDisplayObject::OnMouseButtonDown(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseButtonDown(AsShared(), MyGeometry, MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        return Obj->GetApp()->OnWidgetMouseButtonDown(AsShared(), MyGeometry, MouseEvent);
+    else
+        return FReply::Unhandled();
 }
 
 FReply SDisplayObject::OnMouseButtonUp(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseButtonUp(AsShared(), MyGeometry, MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        return Obj->GetApp()->OnWidgetMouseButtonUp(AsShared(), MyGeometry, MouseEvent);
+    else
+        return FReply::Unhandled();
 }
 
 FReply SDisplayObject::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseMove(AsShared(), MyGeometry, MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        return Obj->GetApp()->OnWidgetMouseMove(AsShared(), MyGeometry, MouseEvent);
+    else
+        return FReply::Unhandled();
 }
 
 FReply SDisplayObject::OnMouseButtonDoubleClick(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseButtonDoubleClick(AsShared(), MyGeometry, MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        return Obj->GetApp()->OnWidgetMouseButtonDoubleClick(AsShared(), MyGeometry, MouseEvent);
+    else
+        return FReply::Unhandled();
 }
 
 void SDisplayObject::OnMouseEnter(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseEnter(AsShared(), MyGeometry, MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        Obj->GetApp()->OnWidgetMouseEnter(AsShared(), MyGeometry, MouseEvent);
 }
 
 void SDisplayObject::OnMouseLeave(const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseLeave(AsShared(), MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        Obj->GetApp()->OnWidgetMouseLeave(AsShared(), MouseEvent);
 }
 
 FReply SDisplayObject::OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
-    return UFairyApplication::Get()->OnWidgetMouseWheel(AsShared(), MyGeometry, MouseEvent);
+    UGObject* Obj = GetWidgetGObject(AsShared());
+    if (Obj != nullptr)
+        return Obj->GetApp()->OnWidgetMouseWheel(AsShared(), MyGeometry, MouseEvent);
+    else
+        return FReply::Unhandled();
+}
+
+bool SDisplayObject::IsWidgetOnStage(const TSharedPtr<SWidget>& InWidget)
+{
+    TSharedPtr<SWidget> Ptr = InWidget;
+    while (Ptr.IsValid())
+    {
+        if (Ptr->Advanced_IsWindow())
+            return true;
+
+        Ptr = Ptr->GetParentWidget();
+    }
+
+    return false;
+}
+
+UGObject* SDisplayObject::GetWidgetGObject(const TSharedPtr<SWidget>& InWidget)
+{
+    TSharedPtr<SWidget> Ptr = InWidget;
+    while (Ptr.IsValid() && !Ptr->Advanced_IsWindow())
+    {
+        if (Ptr->GetTag() == SDisplayObject::SDisplayObjectTag)
+        {
+            const TWeakObjectPtr<UGObject>& ObjPtr = StaticCastSharedPtr<SDisplayObject>(Ptr)->GObject;
+            if (ObjPtr.IsValid())
+                return ObjPtr.Get();
+        }
+
+        Ptr = Ptr->GetParentWidget();
+    }
+
+    return nullptr;
+}
+
+UGObject* SDisplayObject::GetWidgetGObjectIfOnStage(const TSharedPtr<SWidget>& InWidget)
+{
+    TSharedPtr<SWidget> Ptr = InWidget;
+    UGObject* Result = nullptr;
+    while (Ptr.IsValid())
+    {
+        if (Ptr->Advanced_IsWindow())
+            return Result;
+
+        if (Result == nullptr && Ptr->GetTag() == SDisplayObject::SDisplayObjectTag)
+            Result = StaticCastSharedPtr<SDisplayObject>(Ptr)->GObject.Get();
+
+        Ptr = Ptr->GetParentWidget();
+    }
+
+    return nullptr;
+}
+
+void SDisplayObject::GetWidgetPathToRoot(const TSharedRef<SWidget>& InWidget, TArray<UGObject*>& OutArray)
+{
+    TSharedPtr<SWidget> Ptr = InWidget;
+    while (Ptr.IsValid() && !Ptr->Advanced_IsWindow())
+    {
+        if (Ptr->GetTag() == SDisplayObject::SDisplayObjectTag)
+        {
+            const TWeakObjectPtr<UGObject>& ObjPtr = StaticCastSharedPtr<SDisplayObject>(Ptr)->GObject;
+            if (ObjPtr.IsValid())
+                OutArray.Add(ObjPtr.Get());
+        }
+
+        Ptr = Ptr->GetParentWidget();
+    }
+}
+
+void SDisplayObject::GetWidgetDescendants(const TSharedRef<SWidget>& InWidget, TArray<UGObject*>& OutArray)
+{
+    if (InWidget->GetTag() == SDisplayObject::SDisplayObjectTag)
+    {
+        const TSharedRef<SDisplayObject>& DisplayObject = StaticCastSharedRef<SDisplayObject>(InWidget);
+        if (DisplayObject->GObject.IsValid())
+            OutArray.Add(DisplayObject->GObject.Get());
+    }
+
+    FChildren* Children = InWidget->GetChildren();
+    for (int32 SlotIdx = 0; SlotIdx < Children->Num(); ++SlotIdx)
+    {
+        GetWidgetDescendants(Children->GetChildAt(SlotIdx), OutArray);
+    }
 }

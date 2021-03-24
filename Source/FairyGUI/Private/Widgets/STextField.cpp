@@ -7,6 +7,7 @@ STextField::STextField() :
     bHTML(false),
     AutoSize(EAutoSizeType::None),
     bSingleLine(false),
+    MaxWidth(0),
     TextLayout(FSlateTextLayout::Create(this, FTextBlockStyle::GetDefault()))
 {
     TextLayout->SetLineBreakIterator(FBreakIterator::CreateCharacterBoundaryIterator());
@@ -62,6 +63,23 @@ void STextField::SetSingleLine(bool bInSingleLine)
     }
 }
 
+void STextField::SetMaxWidth(float InMaxWidth)
+{
+    if (MaxWidth != InMaxWidth)
+    {
+        MaxWidth = InMaxWidth;
+        TextLayout->DirtyLayout();
+    }
+}
+
+FVector2D STextField::GetTextSize()
+{
+    if(TextLayout->IsLayoutDirty())
+        UpdateTextLayout();
+
+    return TextLayout->GetSize();
+}
+
 void STextField::SetTextFormat(const FNTextFormat& InFormat)
 {
     if (&InFormat != &TextFormat)
@@ -71,19 +89,11 @@ void STextField::SetTextFormat(const FNTextFormat& InFormat)
 
 FVector2D STextField::ComputeDesiredSize(float LayoutScaleMultiplier) const
 {
+    TextLayout->SetScale(LayoutScaleMultiplier);
     if (TextLayout->IsLayoutDirty())
-    {
-        TextLayout->SetScale(LayoutScaleMultiplier);
         const_cast<STextField*>(this)->UpdateTextLayout();
-    }
 
     return Size;
-}
-
-void STextField::EnsureSizeCorrect()
-{
-    if (TextLayout->IsLayoutDirty() && (AutoSize == EAutoSizeType::Both || AutoSize == EAutoSizeType::Height))
-        UpdateTextLayout();
 }
 
 FChildren* STextField::GetChildren()
@@ -128,7 +138,7 @@ int32 STextField::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeome
         switch (TextFormat.VerticalAlign)
         {
         case EVerticalAlignType::Middle:
-            AutoScrollValue.Y = FMath::CeilToFloat((ActualHeight - VisibleHeight)*.5f);
+            AutoScrollValue.Y = FMath::CeilToFloat((ActualHeight - VisibleHeight) * .5f);
             break;
 
         case EVerticalAlignType::Bottom:
@@ -158,9 +168,9 @@ void STextField::UpdateTextLayout()
     TextLayout->SetJustification((ETextJustify::Type)TextFormat.Align);
     TextLayout->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
     if (AutoSize == EAutoSizeType::Both)
-        TextLayout->SetWrappingWidth(0);
+        TextLayout->SetWrappingWidth(MaxWidth);
     else
-        TextLayout->SetWrappingWidth(Size.X);
+        TextLayout->SetWrappingWidth(MaxWidth != 0 ? FMath::Min(MaxWidth, Size.X) : Size.X);
     TextLayout->SetMargin(FMargin(2, 2));
     TextLayout->SetLineHeightPercentage(1 + (TextFormat.LineSpacing - 3) / TextFormat.Size);
 
@@ -184,11 +194,11 @@ void STextField::UpdateTextLayout()
 
     if (AutoSize == EAutoSizeType::Both)
     {
-        SetSize(TextLayout->GetSize());
+        GObject->SetSize(TextLayout->GetSize());
     }
     else if (AutoSize == EAutoSizeType::Height)
     {
-        SetSize(FVector2D(Size.X, TextLayout->GetSize().Y));
+        GObject->SetSize(FVector2D(Size.X, TextLayout->GetSize().Y));
     }
 }
 
@@ -275,7 +285,7 @@ void STextField::BuildLines()
                         ModelRange.BeginIndex = LineHelper.GetText().Len();
                         LineHelper.GetText().AppendChar(TextBlock[CharIndex]);
                         ModelRange.EndIndex = LineHelper.GetText().Len();
-                        LineHelper.GetRuns().Add(FBitmapFontRun::Create(LineHelper.GetTextRef(), BitmapFont.ToSharedRef(), 0, ModelRange));
+                        LineHelper.GetRuns().Add(FBitmapFontRun::Create(LineHelper.GetTextRef(), BitmapFont.ToSharedRef(), ModelRange));
                     }
                 }
                 else
@@ -298,7 +308,7 @@ void STextField::BuildLines()
             ModelRange.BeginIndex = LineHelper.GetText().Len();
             LineHelper.GetText().Append(TEXT("\x200B")); // Zero-Width Breaking Space
             ModelRange.EndIndex = LineHelper.GetText().Len();
-            LineHelper.GetRuns().Add(FLoaderRun::Create(Element, LineHelper.GetTextRef(), 0, ModelRange));
+            LineHelper.GetRuns().Add(FLoaderRun::Create(GObject->GetApp(), Element, LineHelper.GetTextRef(), ModelRange));
         }
     }
 

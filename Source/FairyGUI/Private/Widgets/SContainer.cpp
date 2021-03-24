@@ -36,9 +36,10 @@ void SContainer::AddChildAt(const TSharedRef<SWidget>& SlotWidget, int32 Index)
             Children.Insert(&NewSlot, Index);
         NewSlot.AttachWidget(SlotWidget);
 
-        if (OnStage())
+        UGObject* OnStageObj = SDisplayObject::GetWidgetGObjectIfOnStage(AsShared());
+        if (OnStageObj != nullptr)
         {
-            UFairyApplication::Get()->BroadcastEvent(FUIEvents::AddedToStage, SlotWidget);
+            OnStageObj->GetApp()->BroadcastEvent(FUIEvents::AddedToStage, SlotWidget);
         }
     }
 }
@@ -64,9 +65,10 @@ void SContainer::RemoveChildAt(int32 Index)
     verifyf(Index >= 0 && Index < Children.Num(), TEXT("Invalid child index"));
     TSharedRef<SWidget> SlotWidget = Children[Index].GetWidget();
 
-    if (OnStage())
+    UGObject* OnStageObj = SDisplayObject::GetWidgetGObjectIfOnStage(AsShared());
+    if (OnStageObj != nullptr)
     {
-        UFairyApplication::Get()->BroadcastEvent(FUIEvents::RemovedFromStage, SlotWidget);
+        OnStageObj->GetApp()->BroadcastEvent(FUIEvents::RemovedFromStage, SlotWidget);
     }
 
     Children.RemoveAt(Index);
@@ -90,7 +92,8 @@ void SContainer::RemoveChildren(int32 BeginIndex, int32 EndIndex)
     if (EndIndex < 0 || EndIndex >= Children.Num())
         EndIndex = Children.Num() - 1;
 
-    UFairyApplication* Dispatcher = OnStage() ? UFairyApplication::Get() : nullptr;
+    UGObject* OnStageObj = SDisplayObject::GetWidgetGObjectIfOnStage(AsShared());
+    UFairyApplication* Dispatcher = OnStageObj != nullptr ? OnStageObj->GetApp() : nullptr;
 
     if (Dispatcher != nullptr || BeginIndex > 0 || EndIndex < Children.Num() - 1)
     {

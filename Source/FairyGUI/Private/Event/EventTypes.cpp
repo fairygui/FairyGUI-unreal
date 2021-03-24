@@ -25,3 +25,5 @@ const FName FUIEvents::Scroll("Scroll");
 const FName FUIEvents::ScrollEnd("ScrollEnd");
 const FName FUIEvents::PullDownRelease("PullDownRelease");
 const FName FUIEvents::PullUpRelease("PullUpRelease");
+
+const FName FUIEvents::Submit("Submit");

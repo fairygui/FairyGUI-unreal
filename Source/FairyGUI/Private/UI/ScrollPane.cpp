@@ -104,7 +104,7 @@ void UScrollPane::Setup(FByteBuffer* Buffer)
             const FString& res = vtScrollBarRes.Len() == 0 ? FUIConfig::Config.VerticalScrollBar : vtScrollBarRes;
             if (res.Len() > 0)
             {
-                VtScrollBar = Cast<UGScrollBar>(UUIPackage::CreateObjectFromURL(res));
+                VtScrollBar = Cast<UGScrollBar>(UUIPackage::CreateObjectFromURL(res, Owner));
                 if (VtScrollBar == nullptr)
                 {
                     UE_LOG(LogFairyGUI, Warning, TEXT("cannot create scrollbar from %s"), *res);
@@ -121,7 +121,7 @@ void UScrollPane::Setup(FByteBuffer* Buffer)
             const FString& res = hzScrollBarRes.Len() == 0 ? FUIConfig::Config.HorizontalScrollBar : hzScrollBarRes;
             if (res.Len() > 0)
             {
-                HzScrollBar = Cast<UGScrollBar>(UUIPackage::CreateObjectFromURL(res));
+                HzScrollBar = Cast<UGScrollBar>(UUIPackage::CreateObjectFromURL(res, Owner));
                 if (HzScrollBar == nullptr)
                 {
                     UE_LOG(LogFairyGUI, Warning, TEXT("cannot create scrollbar from %s"), *res);
@@ -151,7 +151,7 @@ void UScrollPane::Setup(FByteBuffer* Buffer)
 
     if (headerRes.Len() > 0)
     {
-        Header = Cast<UGComponent>(UUIPackage::CreateObjectFromURL(headerRes));
+        Header = Cast<UGComponent>(UUIPackage::CreateObjectFromURL(headerRes, Owner));
         if (Header == nullptr)
         {
             UE_LOG(LogFairyGUI, Warning, TEXT("cannot create UScrollPane header from %s"), *headerRes);
@@ -165,7 +165,7 @@ void UScrollPane::Setup(FByteBuffer* Buffer)
 
     if (footerRes.Len() > 0)
     {
-        Footer = Cast<UGComponent>(UUIPackage::CreateObjectFromURL(footerRes));
+        Footer = Cast<UGComponent>(UUIPackage::CreateObjectFromURL(footerRes, Owner));
         if (Footer == nullptr)
         {
             UE_LOG(LogFairyGUI, Warning, TEXT("cannot create UScrollPane footer from %s"), *footerRes);
@@ -760,12 +760,12 @@ void UScrollPane::PosChanged(bool bAnimation)
         AniFlag = -1;
 
     bNeedRefresh = true;
-    DelayCall(RefreshTimerHandle, this, &UScrollPane::Refresh);
+    Owner->GetApp()->DelayCall(RefreshTimerHandle, this, &UScrollPane::Refresh);
 }
 
 void UScrollPane::Refresh()
 {
-    CancelDelayCall(RefreshTimerHandle);
+    Owner->GetApp()->CancelDelayCall(RefreshTimerHandle);
 
     bNeedRefresh = false;
 
@@ -783,7 +783,7 @@ void UScrollPane::Refresh()
     if (bNeedRefresh) //pos may change in onScroll
     {
         bNeedRefresh = false;
-        CancelDelayCall(RefreshTimerHandle);
+        Owner->GetApp()->CancelDelayCall(RefreshTimerHandle);
 
         Refresh2();
     }
@@ -879,7 +879,7 @@ void UScrollPane::UpdateScrollBarVisible2(UGScrollBar* Bar)
         if (Bar->IsVisible())
             FGTween::To(1, 0, 0.5f)
             ->SetDelay(0.5f)
-            ->OnUpdate(FTweenDelegate::CreateStatic(&FGTween::Action::SetAlpha))
+            ->OnUpdate(FTweenDelegate::CreateStatic(&FGTweenAction::SetAlpha))
             ->OnComplete(FTweenDelegate::CreateUObject(this, &UScrollPane::OnBarTweenComplete))
             ->SetTarget(Bar);
     }
@@ -1358,7 +1358,7 @@ void UScrollPane::OnTouchBegin(UEventContext* Context)
     if (Tweening != 0)
     {
         KillTween();
-        UFairyApplication::Get()->CancelClick(Context->GetUserIndex(), Context->GetPointerIndex());
+        Owner->GetApp()->CancelClick(Context->GetUserIndex(), Context->GetPointerIndex());
 
         bDragged = true;
     }

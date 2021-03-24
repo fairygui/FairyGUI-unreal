@@ -8,7 +8,6 @@
 #include "UI/UIPackage.h"
 #include "Widgets/SContainer.h"
 
-UGRoot* UGRoot::Instance = nullptr;
 int32 UGRoot::ContentScaleLevel = 0;
 
 class SRootContainer : public SContainer
@@ -17,16 +16,9 @@ public:
     virtual void OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const override;
 };
 
-UGRoot* UGRoot::Get()
+UGRoot* UGRoot::Get(UObject* WorldContextObject)
 {
-    if (Instance == nullptr)
-    {
-        Instance = NewObject<UGRoot>();
-        UFairyApplication::Get()->UIRoot = Instance;
-        Instance->AddToViewport();
-    }
-
-    return Instance;
+    return UFairyApplication::Get(WorldContextObject)->GetUIRoot();
 }
 
 UGRoot::UGRoot()
@@ -39,8 +31,8 @@ UGRoot::~UGRoot()
 
 void UGRoot::AddToViewport()
 {
-    UGameViewportClient* ViewportClient = GWorld->GetGameViewport();
-    TSharedRef<SRootContainer> FullScreenCanvas = SNew(SRootContainer);
+    UGameViewportClient* ViewportClient = GetApp()->GetViewportClient();
+    TSharedRef<SRootContainer> FullScreenCanvas = SNew(SRootContainer).GObject(this);
     FullScreenCanvas->SetOpaque(false);
     FullScreenCanvas->AddChild(GetDisplayObject());
     ViewportClient->AddViewportWidgetContent(FullScreenCanvas, 100);
@@ -138,7 +130,7 @@ UGGraph* UGRoot::GetModalLayer()
 
 void UGRoot::CreateModalLayer()
 {
-    ModalLayer = NewObject<UGGraph>();
+    ModalLayer = NewObject<UGGraph>(this);
     ModalLayer->SetSize(Size);
     ModalLayer->DrawRect(0, FColor::White, FUIConfig::Config.ModalLayerColor);
     ModalLayer->AddRelation(this, ERelationType::Size);
@@ -195,7 +187,7 @@ UGObject* UGRoot::GetModalWaitingPane()
     {
         if (ModalWaitPane == nullptr)
         {
-            ModalWaitPane = UUIPackage::CreateObjectFromURL(FUIConfig::Config.GlobalModalWaiting);
+            ModalWaitPane = UUIPackage::CreateObjectFromURL(FUIConfig::Config.GlobalModalWaiting, this);
             ModalWaitPane->SetSortingOrder(INT_MAX);
         }
 
@@ -352,7 +344,7 @@ FVector2D UGRoot::GetPoupPosition(UGObject* Popup, UGObject* AtObject, EPopupDir
     }
     else
     {
-        pos = GlobalToLocal(UFairyApplication::Get()->GetTouchPosition());
+        pos = GlobalToLocal(GetApp()->GetTouchPosition());
     }
     FVector2D RetPosition;
     RetPosition.X = pos.X;
@@ -383,7 +375,7 @@ void UGRoot::ShowTooltips(const FString& Text)
             return;
         }
 
-        DefaultTooltipWin = UUIPackage::CreateObjectFromURL(resourceURL);
+        DefaultTooltipWin = UUIPackage::CreateObjectFromURL(resourceURL, this);
         DefaultTooltipWin->SetTouchable(false);
     }
 
@@ -408,7 +400,7 @@ void UGRoot::DoShowTooltipsWin()
     if (TooltipWin == nullptr)
         return;
 
-    FVector2D pt = UFairyApplication::Get()->GetTouchPosition();
+    FVector2D pt = GetApp()->GetTouchPosition();
     FVector2D Pos = pt + FVector2D(10, 20);
 
     Pos = GlobalToLocal(Pos);
@@ -438,11 +430,11 @@ void UGRoot::HideTooltips()
 
 void SRootContainer::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const
 {
-    const FVector2D& LocalSize = AllottedGeometry.GetLocalSize().RoundToVector();
-    if (LocalSize != UGRoot::Get()->GetSize())
+    FVector2D LocalSize = AllottedGeometry.GetLocalSize().RoundToVector();
+    if (LocalSize != GObject->GetSize())
     {
-        UGRoot::Get()->SetSize(LocalSize.RoundToVector());
-        UE_LOG(LogFairyGUI, Log, TEXT("UIRoot resize to %f,%f"), UGRoot::Get()->GetSize().X, UGRoot::Get()->GetSize().Y);
+        GObject->SetSize(LocalSize);
+        UE_LOG(LogFairyGUI, Log, TEXT("UIRoot resize to %f,%f"), LocalSize.X, LocalSize.Y);
     }
 
     SContainer::OnArrangeChildren(AllottedGeometry, ArrangedChildren);

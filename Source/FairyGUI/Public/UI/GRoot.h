@@ -12,8 +12,8 @@ class FAIRYGUI_API UGRoot : public UGComponent
     GENERATED_BODY()
 
 public:
-    UFUNCTION(BlueprintPure, Category = "FairyGUI", meta = (DisplayName = "Get UI Root"))
-    static UGRoot* Get();
+    UFUNCTION(BlueprintPure, Category = "FairyGUI", meta = (DisplayName = "Get UI Root", WorldContext = "WorldContextObject"))
+    static UGRoot* Get(UObject* WorldContextObject);
 
     static int32 ContentScaleLevel;
 
@@ -75,14 +75,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void HideTooltips();
 
-private:
     void AddToViewport();
-
+private:
     void CreateModalLayer();
     void AdjustModalLayer();
     void ClosePopup(UGObject* Popup);
 
-    //void UdateContentScaleLevel();
+    //void UpdateContentScaleLevel();
 
     void DoShowTooltipsWin();
 
@@ -97,8 +96,6 @@ private:
     TArray<TWeakObjectPtr<UGObject>> PopupStack;
     TArray<TWeakObjectPtr<UGObject>> JustClosedPopups;
     FTimerHandle ShowTooltipsTimerHandle;
-
-    static UGRoot* Instance;
 
     friend class UFairyApplication;
 };

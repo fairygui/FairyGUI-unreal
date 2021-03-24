@@ -268,7 +268,6 @@ void FRelationItem::ApplyOnSizeChanged(UGObject* InTarget, const FRelationDef& i
     }
 
     float v, tmp;
-
     switch (info.Type)
     {
     case ERelationType::Left_Left:

@@ -420,7 +420,7 @@ void UGButton::OnTouchEndHandler(UEventContext* Context)
 void UGButton::OnClickHandler(UEventContext* Context)
 {
     if (!Sound.IsEmpty())
-        UFairyApplication::Get()->PlaySound(Sound, SoundVolumeScale);
+        GetApp()->PlaySound(Sound, SoundVolumeScale);
 
     if (Mode == EButtonMode::Check)
     {

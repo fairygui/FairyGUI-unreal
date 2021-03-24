@@ -5,13 +5,17 @@
 #include "Widgets/SMovieClip.h"
 #include "Widgets/SContainer.h"
 #include "Utils/ByteBuffer.h"
+#include "Engine/AssetManager.h"
 
 UGLoader::UGLoader()
 {
-    DisplayObject = Container = SNew(SContainer).GObject(this);
-    Content = SNew(SMovieClip);
-    Content->SetInteractable(false);
-    Container->AddChild(Content.ToSharedRef());
+    if (!HasAnyFlags(RF_ClassDefaultObject | RF_ArchetypeObject))
+    {
+        DisplayObject = Container = SNew(SContainer).GObject(this);
+        Content = SNew(SMovieClip);
+        Content->SetInteractable(false);
+        Container->AddChild(Content.ToSharedRef());
+    }
 }
 
 UGLoader::~UGLoader()
@@ -191,7 +195,6 @@ void UGLoader::ClearContent()
 void UGLoader::LoadFromPackage(const FString& ItemURL)
 {
     ContentItem = UUIPackage::GetItemByURL(ItemURL);
-
     if (ContentItem.IsValid())
     {
         ContentItem = ContentItem->GetBranch();
@@ -216,7 +219,7 @@ void UGLoader::LoadFromPackage(const FString& ItemURL)
         }
         else if (ContentItem->Type == EPackageItemType::Component)
         {
-            UGObject* obj = UUIPackage::CreateObjectFromURL(ItemURL);
+            UGObject* obj = UUIPackage::CreateObjectFromURL(ItemURL, this);
             if (obj == nullptr || !obj->IsA<UGComponent>())
                 SetErrorState();
             else
@@ -242,7 +245,25 @@ void UGLoader::LoadFromPackage(const FString& ItemURL)
 
 void UGLoader::LoadExternal()
 {
+    SoftObjectPath = MakeShareable(new FSoftObjectPath(URL));
 
+    UAssetManager::GetStreamableManager().RequestAsyncLoad(*SoftObjectPath, FStreamableDelegate::CreateUObject(this, &UGLoader::OnExternalLoaded, URL));
+}
+
+void UGLoader::OnExternalLoaded(FString LoadingURL)
+{
+    if (!SoftObjectPath.IsValid() || LoadingURL != URL)
+        return;
+
+    TSoftObjectPtr<UTexture2D> NativeTexture(*SoftObjectPath);
+    UNTexture* NTexture = NewObject<UNTexture>(this);
+    NTexture->Init(NativeTexture.Get());
+    Content->SetTexture(NTexture);
+    Content->SetNativeSize();
+    SourceSize = NTexture->GetSize();
+    UpdateLayout();
+
+    SoftObjectPath.Reset();
 }
 
 void UGLoader::UpdateLayout()

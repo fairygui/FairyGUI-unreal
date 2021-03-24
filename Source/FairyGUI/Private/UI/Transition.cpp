@@ -1220,7 +1220,7 @@ void UTransition::ApplyValue(FTransitionItem* item)
         if (bPlaying && item->Time >= StartTime)
         {
             if (!item->SoundData->URL.IsEmpty())
-                UFairyApplication::Get()->PlaySound(item->SoundData->URL, item->SoundData->Volume);
+                Owner->GetApp()->PlaySound(item->SoundData->URL, item->SoundData->Volume);
             break;
         }
 

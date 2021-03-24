@@ -5,15 +5,14 @@
 #include "Framework/Text/DefaultLayoutBlock.h"
 #include "Framework/Text/RunUtils.h"
 
-TSharedRef< FBitmapFontRun > FBitmapFontRun::Create(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, int16 InBaseline, const FTextRange& InRange)
+TSharedRef< FBitmapFontRun > FBitmapFontRun::Create(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, const FTextRange& InRange)
 {
-    return MakeShareable(new FBitmapFontRun(InText, InFont, InBaseline, InRange));
+    return MakeShareable(new FBitmapFontRun(InText, InFont, InRange));
 }
 
-FBitmapFontRun::FBitmapFontRun(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, int16 InBaseline, const FTextRange& InRange)
+FBitmapFontRun::FBitmapFontRun(const TSharedRef< const FString >& InText, const TSharedRef<FBitmapFont>& InFont, const FTextRange& InRange)
     : Text(InText)
     , Range(InRange)
-    , Baseline(InBaseline)
     , Font(InFont)
 {
     Glyph = Font->Glyphs.Find(Text.Get()[Range.BeginIndex]);
@@ -136,7 +135,7 @@ int16 FBitmapFontRun::GetMaxHeight(float Scale) const
 
 int16 FBitmapFontRun::GetBaseLine(float Scale) const
 {
-    return Baseline * Scale;
+    return Scale;
 }
 
 FTextRange FBitmapFontRun::GetTextRange() const
@@ -157,7 +156,7 @@ void FBitmapFontRun::Move(const TSharedRef<FString>& NewText, const FTextRange& 
 
 TSharedRef<IRun> FBitmapFontRun::Clone() const
 {
-    TSharedRef<FBitmapFontRun> NewRun = FBitmapFontRun::Create(Text, Font, Baseline, Range);
+    TSharedRef<FBitmapFontRun> NewRun = FBitmapFontRun::Create(Text, Font, Range);
 
     return NewRun;
 }
