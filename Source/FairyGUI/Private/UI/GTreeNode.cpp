@@ -200,7 +200,7 @@ void UGTreeNode::SetChildIndex(UGTreeNode* Child, int32 Index)
 
     Children.RemoveAt(OldIndex);
     Children.Insert(Child, Index);
-    if (Tree.IsValid() && this == Tree->RootNode || Cell != nullptr && Cell->GetParent() != nullptr && bExpanded)
+    if ((Tree.IsValid() && this == Tree->RootNode) || (Cell != nullptr && Cell->GetParent() != nullptr && bExpanded))
         Tree->AfterMoved(Child);
 }
 

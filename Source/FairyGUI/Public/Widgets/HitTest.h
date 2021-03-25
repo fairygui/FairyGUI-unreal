@@ -42,4 +42,5 @@ public:
     bool HitTest(const FBox2D& ContentRect, const FVector2D& LayoutScaleMultiplier, const FVector2D& LocalPoint) const;
 
     TWeakObjectPtr<UGObject> Obj;
+    virtual ~FChildHitTest();
 };

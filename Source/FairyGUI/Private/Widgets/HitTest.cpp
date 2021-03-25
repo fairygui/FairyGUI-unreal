@@ -64,3 +64,7 @@ bool FChildHitTest::HitTest(const FBox2D& ContentRect, const FVector2D& LayoutSc
 
     return HitArea->HitTest(NewRect, NewMultiplier, NewPoint);
 }
+
+FChildHitTest::~FChildHitTest()
+{
+}

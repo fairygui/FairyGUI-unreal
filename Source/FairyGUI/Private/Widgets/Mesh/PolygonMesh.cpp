@@ -184,7 +184,7 @@ bool FPolygonMesh::HitTest(const FBox2D& ContentRect, const FVector2D& LayoutSca
             vj *= ContentSize;
         }
 
-        if ((vi.Y < LocalPoint.Y && vj.Y >= LocalPoint.Y || vj.Y < LocalPoint.Y && vi.Y >= LocalPoint.Y) && (vi.X <= LocalPoint.X || vj.X <= LocalPoint.X))
+        if (((vi.Y < LocalPoint.Y && vj.Y >= LocalPoint.Y) || (vj.Y < LocalPoint.Y && vi.Y >= LocalPoint.Y)) && (vi.X <= LocalPoint.X || vj.X <= LocalPoint.X))
         {
             if (vi.X + (LocalPoint.Y - vi.Y) / (vj.Y - vi.Y) * (vj.X - vi.X) < LocalPoint.X)
                 oddNodes = !oddNodes;
