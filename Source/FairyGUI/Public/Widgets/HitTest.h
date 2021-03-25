@@ -38,6 +38,7 @@ class FAIRYGUI_API FChildHitTest : public IHitTest
 {
 public:
     FChildHitTest(UGObject* InObj);
+	virtual ~FChildHitTest();
 
     bool HitTest(const FBox2D& ContentRect, const FVector2D& LayoutScaleMultiplier, const FVector2D& LocalPoint) const;
 

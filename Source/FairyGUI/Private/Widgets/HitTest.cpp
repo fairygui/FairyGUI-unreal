@@ -44,6 +44,10 @@ FChildHitTest::FChildHitTest(UGObject* InObj) :Obj(InObj)
 {
 }
 
+FChildHitTest::~FChildHitTest()
+{
+}
+
 bool FChildHitTest::HitTest(const FBox2D& ContentRect, const FVector2D& LayoutScaleMultiplier, const FVector2D& LocalPoint) const
 {
     if (!Obj.IsValid() || Obj->GetParent() == nullptr)
