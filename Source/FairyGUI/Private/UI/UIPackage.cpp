@@ -69,6 +69,8 @@ UUIPackage* UUIPackage::AddPackage(const TCHAR* InAssetPath, UObject* WorldConte
 
 UUIPackage* UUIPackage::AddPackage(UUIPackageAsset* InAsset, UObject* WorldContextObject)
 {
+    verifyf(WorldContextObject != nullptr, TEXT("Null WorldContextObject?"));
+
     UWorld* World = WorldContextObject->GetWorld();
     verifyf(World != nullptr, TEXT("Null World?"));
     verifyf(World->IsGameWorld(), TEXT("Not a Game World?"));
@@ -103,6 +105,8 @@ UUIPackage* UUIPackage::AddPackage(UUIPackageAsset* InAsset, UObject* WorldConte
 
 void UUIPackage::RemovePackage(const FString& IDOrName, UObject* WorldContextObject)
 {
+    verifyf(WorldContextObject != nullptr, TEXT("Null WorldContextObject?"));
+
     UUIPackage* Pkg = GetPackageByName(IDOrName);
     if (Pkg == nullptr)
         Pkg = GetPackageByID(IDOrName);

@@ -43,6 +43,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
     bool bCanDrag;
 
+    UPROPERTY(BlueprintAssignable, Category = "FairyGUI|Event")
+    FGUIEventDynMDelegate OnChanged;
+
 protected:
     virtual void HandleSizeChanged() override;
     virtual void ConstructExtension(FByteBuffer* Buffer);
