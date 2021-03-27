@@ -276,11 +276,11 @@ void SFImage::SliceFill(FVertexHelper& Helper)
         int32 row, col;
         int32 part;
 
-        for (int32 pi = 0; pi < 9; pi++)
+        for (int32 pii = 0; pii < 9; pii++)
         {
-            col = pi % 3;
-            row = pi / 3;
-            part = gridTileIndice[pi];
+            col = pii % 3;
+            row = pii / 3;
+            part = gridTileIndice[pii];
             drawRect = FBox2D(FVector2D(gridX[col], gridY[row]), FVector2D(gridX[col + 1], gridY[row + 1]));
             texRect = FBox2D(FVector2D(gridTexX[col], gridTexY[row]), FVector2D(gridTexX[col + 1], gridTexY[row + 1]));
 
