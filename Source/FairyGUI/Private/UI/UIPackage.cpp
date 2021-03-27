@@ -7,6 +7,7 @@
 #include "Widgets/SMovieClip.h"
 #include "Widgets/BitmapFont.h"
 #include "Utils/ByteBuffer.h"
+#include "UI/UIObjectFactory.h"
 
 int32 UUIPackage::Constructing = 0;
 
@@ -166,9 +167,9 @@ UGObject* UUIPackage::CreateObject(const FString& PackageName, const FString& Re
 
 UGObject* UUIPackage::CreateObjectFromURL(const FString& URL, UObject* WorldContextObject, TSubclassOf<UGObject> ClassType)
 {
-    TSharedPtr<FPackageItem> pi = UUIPackage::GetItemByURL(URL);
-    if (pi.IsValid())
-        return pi->Owner->CreateObject(pi, WorldContextObject);
+    TSharedPtr<FPackageItem> pii = UUIPackage::GetItemByURL(URL);
+    if (pii.IsValid())
+        return pii->Owner->CreateObject(pii, WorldContextObject);
     else
         return nullptr;
 }
@@ -178,9 +179,9 @@ FString UUIPackage::GetItemURL(const FString& PackageName, const FString& Resour
     UUIPackage* pkg = GetPackageByName(PackageName);
     if (pkg != nullptr)
     {
-        TSharedPtr<FPackageItem> pi = pkg->GetItemByName(ResourceName);
-        if (pi.IsValid())
-            return "ui://" + pkg->GetID() + pi->ID;
+        TSharedPtr<FPackageItem> pii = pkg->GetItemByName(ResourceName);
+        if (pii.IsValid())
+            return "ui://" + pkg->GetID() + pii->ID;
     }
     return "";
 }
@@ -354,22 +355,22 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         int32 nextPos = Buffer->ReadInt();
         nextPos += Buffer->GetPos();
 
-        TSharedPtr<FPackageItem> pi = MakeShared<FPackageItem>();
-        pi->Owner = this;
-        pi->Type = (EPackageItemType)Buffer->ReadByte();
-        pi->ID = Buffer->ReadS();
-        pi->Name = Buffer->ReadS();
+        TSharedPtr<FPackageItem> pii = MakeShared<FPackageItem>();
+        pii->Owner = this;
+        pii->Type = (EPackageItemType)Buffer->ReadByte();
+        pii->ID = Buffer->ReadS();
+        pii->Name = Buffer->ReadS();
         Buffer->Skip(2); //path
-        pi->File = Buffer->ReadS();
+        pii->File = Buffer->ReadS();
         Buffer->ReadBool(); //exported
-        pi->Size.X = Buffer->ReadInt();
-        pi->Size.Y = Buffer->ReadInt();
+        pii->Size.X = Buffer->ReadInt();
+        pii->Size.Y = Buffer->ReadInt();
 
-        switch (pi->Type)
+        switch (pii->Type)
         {
         case EPackageItemType::Image:
         {
-            pi->ObjectType = EObjectType::Image;
+            pii->ObjectType = EObjectType::Image;
             int32 scaleOption = Buffer->ReadByte();
             if (scaleOption == 1)
             {
@@ -378,11 +379,11 @@ void UUIPackage::Load(FByteBuffer* Buffer)
                 scale9Grid.Min.Y = Buffer->ReadInt();
                 scale9Grid.Max.X = scale9Grid.Min.X + Buffer->ReadInt();
                 scale9Grid.Max.Y = scale9Grid.Min.Y + Buffer->ReadInt();
-                pi->Scale9Grid = scale9Grid;
-                pi->TileGridIndice = Buffer->ReadInt();
+                pii->Scale9Grid = scale9Grid;
+                pii->TileGridIndice = Buffer->ReadInt();
             }
             else if (scaleOption == 2)
-                pi->bScaleByTile = true;
+                pii->bScaleByTile = true;
 
             Buffer->ReadBool(); //smoothing
             break;
@@ -391,14 +392,14 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         case EPackageItemType::MovieClip:
         {
             Buffer->ReadBool(); //smoothing
-            pi->ObjectType = EObjectType::MovieClip;
-            pi->RawData = Buffer->ReadBuffer(false);
+            pii->ObjectType = EObjectType::MovieClip;
+            pii->RawData = Buffer->ReadBuffer(false);
             break;
         }
 
         case EPackageItemType::Font:
         {
-            pi->RawData = Buffer->ReadBuffer(false);
+            pii->RawData = Buffer->ReadBuffer(false);
             break;
         }
 
@@ -406,12 +407,12 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         {
             int32 extension = Buffer->ReadByte();
             if (extension > 0)
-                pi->ObjectType = (EObjectType)extension;
+                pii->ObjectType = (EObjectType)extension;
             else
-                pi->ObjectType = EObjectType::Component;
-            pi->RawData = Buffer->ReadBuffer(false);
+                pii->ObjectType = EObjectType::Component;
+            pii->RawData = Buffer->ReadBuffer(false);
 
-            FUIObjectFactory::ResolvePackageItemExtension(pi);
+            FUIObjectFactory::ResolvePackageItemExtension(pii);
             break;
         }
 
@@ -419,15 +420,15 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         case EPackageItemType::Sound:
         case EPackageItemType::Misc:
         {
-            FString file = fileName + "_" + FPaths::GetBaseFilename(pi->File);
-            pi->File = path + "/" + file + "." + file;
+            FString file = fileName + "_" + FPaths::GetBaseFilename(pii->File);
+            pii->File = path + "/" + file + "." + file;
             break;
         }
 
         case EPackageItemType::Spine:
         case EPackageItemType::DragonBones:
         {
-            pi->File = path + pi->File;
+            pii->File = path + pii->File;
             break;
         }
 
@@ -439,32 +440,32 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         {
             FString str = Buffer->ReadS(); //branch
             if (!str.IsEmpty())
-                pi->Name = str + "/" + pi->Name;
+                pii->Name = str + "/" + pii->Name;
 
             int32 branchCnt = Buffer->ReadUbyte();
             if (branchCnt > 0)
             {
                 if (branchIncluded)
                 {
-                    pi->Branches.Emplace();
-                    Buffer->ReadSArray(pi->Branches.GetValue(), branchCnt);
+                    pii->Branches.Emplace();
+                    Buffer->ReadSArray(pii->Branches.GetValue(), branchCnt);
                 }
                 else
-                    ItemsByID.Add(Buffer->ReadS(), pi);
+                    ItemsByID.Add(Buffer->ReadS(), pii);
             }
 
             int32 highResCnt = Buffer->ReadUbyte();
             if (highResCnt > 0)
             {
-                pi->HighResolution.Emplace();
-                Buffer->ReadSArray(pi->HighResolution.GetValue(), highResCnt);
+                pii->HighResolution.Emplace();
+                Buffer->ReadSArray(pii->HighResolution.GetValue(), highResCnt);
             }
         }
 
-        Items.Push(pi);
-        ItemsByID.Add(pi->ID, pi);
-        if (!pi->Name.IsEmpty())
-            ItemsByName.Add(pi->Name, pi);
+        Items.Push(pii);
+        ItemsByID.Add(pii->ID, pii);
+        if (!pii->Name.IsEmpty())
+            ItemsByName.Add(pii->Name, pii);
 
         Buffer->SetPos(nextPos);
     }
@@ -478,10 +479,10 @@ void UUIPackage::Load(FByteBuffer* Buffer)
         nextPos += Buffer->GetPos();
 
         const FString& itemId = Buffer->ReadS();
-        const TSharedPtr<FPackageItem>& pi = ItemsByID[Buffer->ReadS()];
+        const TSharedPtr<FPackageItem>& pii = ItemsByID[Buffer->ReadS()];
 
         FAtlasSprite* sprite = new FAtlasSprite();
-        sprite->Atlas = pi;
+        sprite->Atlas = pii;
         sprite->Rect.Min.X = Buffer->ReadInt();
         sprite->Rect.Min.Y = Buffer->ReadInt();
         sprite->Rect.Max.X = sprite->Rect.Min.X + Buffer->ReadInt();
@@ -518,11 +519,11 @@ void UUIPackage::Load(FByteBuffer* Buffer)
             int32 nextPos = Buffer->ReadInt();
             nextPos += Buffer->GetPos();
 
-            TSharedPtr<FPackageItem> pi = ItemsByID.FindRef(Buffer->ReadS());
-            if (pi.IsValid() && pi->Type == EPackageItemType::Image)
+            TSharedPtr<FPackageItem> pii = ItemsByID.FindRef(Buffer->ReadS());
+            if (pii.IsValid() && pii->Type == EPackageItemType::Image)
             {
-                pi->PixelHitTestData = MakeShareable(new FPixelHitTestData());
-                pi->PixelHitTestData->Load(Buffer);
+                pii->PixelHitTestData = MakeShareable(new FPixelHitTestData());
+                pii->PixelHitTestData->Load(Buffer);
             }
 
             Buffer->SetPos(nextPos);

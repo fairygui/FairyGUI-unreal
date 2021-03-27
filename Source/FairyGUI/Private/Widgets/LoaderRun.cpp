@@ -27,9 +27,9 @@ FLoaderRun::FLoaderRun(UFairyApplication* App, const FHTMLElement& InHTMLElement
     const FString& Src = HTMLElement.Attributes.Get("src");
     if (Src.Len() > 0)
     {
-        TSharedPtr<FPackageItem> pi = UUIPackage::GetItemByURL(Src);
-        if (pi.IsValid())
-            SourceSize = pi->Size;
+        TSharedPtr<FPackageItem> pii = UUIPackage::GetItemByURL(Src);
+        if (pii.IsValid())
+            SourceSize = pii->Size;
     }
 
     Loader->SetURL(Src);

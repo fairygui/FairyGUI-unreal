@@ -12,6 +12,8 @@
 #include "Widgets/SContainer.h"
 #include "Widgets/HitTest.h"
 #include "Tween/GTween.h"
+#include "FairyApplication.h"
+
 
 UGComponent::UGComponent() :
     AlignOffset(ForceInit)
@@ -993,7 +995,7 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
             const FString& src = Buffer->ReadS();
             const FString& pkgId = Buffer->ReadS();
 
-            TSharedPtr<FPackageItem> pi;
+            TSharedPtr<FPackageItem> pii;
             if (!src.IsEmpty())
             {
                 UUIPackage* pkg;
@@ -1003,12 +1005,12 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
                     pkg = ContentItem->Owner;
 
                 if (pkg != nullptr)
-                    pi = pkg->GetItem(src);
+                    pii = pkg->GetItem(src);
             }
 
-            if (pi.IsValid())
+            if (pii.IsValid())
             {
-                Child = FUIObjectFactory::NewObject(pi, this);
+                Child = FUIObjectFactory::NewObject(pii, this);
                 Child->ConstructFromResource();
             }
             else
@@ -1071,9 +1073,9 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
     int32 i2 = Buffer->ReadInt();
     if (!hitTestId.IsEmpty())
     {
-        TSharedPtr<FPackageItem> pi = ContentItem->Owner->GetItem(hitTestId);
-        if (pi.IsValid() && pi->PixelHitTestData.IsValid())
-            SetHitArea(MakeShareable(new FPixelHitTest(pi->PixelHitTestData, i1, i2)));
+        TSharedPtr<FPackageItem> pii = ContentItem->Owner->GetItem(hitTestId);
+        if (pii.IsValid() && pii->PixelHitTestData.IsValid())
+            SetHitArea(MakeShareable(new FPixelHitTest(pii->PixelHitTestData, i1, i2)));
     }
     else if (i1 != 0 && i2 != -1)
     {
