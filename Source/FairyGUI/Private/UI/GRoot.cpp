@@ -32,6 +32,8 @@ UGRoot::~UGRoot()
 void UGRoot::AddToViewport()
 {
     UGameViewportClient* ViewportClient = GetApp()->GetViewportClient();
+    verifyf(ViewportClient != nullptr, TEXT("Null Viewport?"));
+
     TSharedRef<SRootContainer> FullScreenCanvas = SNew(SRootContainer).GObject(this);
     FullScreenCanvas->SetOpaque(false);
     FullScreenCanvas->AddChild(GetDisplayObject());

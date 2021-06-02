@@ -53,48 +53,48 @@ private:
 
 public:
     UFUNCTION(BlueprintPure, Category = "FairyGUI", meta = (DisplayName = "Get Application", WorldContext = "WorldContextObject"))
-    static UFairyApplication* Get(UObject* WorldContextObject);
+        static UFairyApplication* Get(UObject* WorldContextObject);
 
     static void Destroy();
 
     UFairyApplication();
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    UGRoot* GetUIRoot() const;
+        UGRoot* GetUIRoot() const;
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    UDragDropManager* GetDragDropManager() const { return DragDropManager; }
+        UDragDropManager* GetDragDropManager() const { return DragDropManager; }
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    FVector2D GetTouchPosition(int32 InUserIndex = -1, int32 InPointerIndex = -1);
+        FVector2D GetTouchPosition(int32 InUserIndex = -1, int32 InPointerIndex = -1);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    int32 GetTouchCount() const;
+        int32 GetTouchCount() const;
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    UGObject* GetObjectUnderPoint(const FVector2D& ScreenspacePosition);
+        UGObject* GetObjectUnderPoint(const FVector2D& ScreenspacePosition);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    void CancelClick(int32 InUserIndex = -1, int32 InPointerIndex = -1);
+        void CancelClick(int32 InUserIndex = -1, int32 InPointerIndex = -1);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    void PlaySound(const FString& URL, float VolumeScale = 1);
+        void PlaySound(const FString& URL, float VolumeScale = 1);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    bool IsSoundEnabled() const { return bSoundEnabled; }
+        bool IsSoundEnabled() const { return bSoundEnabled; }
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    void SetSoundEnabled(bool InEnabled);
+        void SetSoundEnabled(bool InEnabled);
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    float GetSoundVolumeScale() const { return SoundVolumeScale; }
+        float GetSoundVolumeScale() const { return SoundVolumeScale; }
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
-    void SetSoundVolumeScale(float InVolumeScale);
+        void SetSoundVolumeScale(float InVolumeScale);
 
 public:
     virtual UWorld* GetWorld() const override {
-        return World;
+        return GameInstance->GetWorld();
     }
 
     bool DispatchEvent(const FName& EventType, const TSharedRef<SWidget>& Initiator, const FNVariant& Data = FNVariant::Null);
@@ -142,11 +142,11 @@ private:
 
 private:
     UPROPERTY(Transient)
-    UGRoot* UIRoot;
+        UGRoot* UIRoot;
     UPROPERTY(Transient)
-    UDragDropManager* DragDropManager;
+        UDragDropManager* DragDropManager;
     UPROPERTY(Transient)
-    TArray<UEventContext*> EventContextPool;
+        TArray<UEventContext*> EventContextPool;
 
     TSharedPtr<IInputProcessor> InputProcessor;
     UGameViewportClient* ViewportClient;
@@ -159,7 +159,7 @@ private:
     bool bSoundEnabled;
     float SoundVolumeScale;
 
-    UWorld* World;
+    UGameInstance* GameInstance;
 
     static TMap<uint32, UFairyApplication*> Instances;
 };
@@ -167,11 +167,11 @@ private:
 template< class UserClass, typename... VarTypes >
 void UFairyApplication::DelayCall(FTimerHandle& InOutHandle, UserClass* InUserObject, typename TMemFunPtrType<false, UserClass, void(VarTypes...)>::Type inTimerMethod, VarTypes... Vars)
 {
-    if (!World->GetTimerManager().TimerExists(InOutHandle))
-        InOutHandle = World->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(InUserObject, inTimerMethod, Vars...));
+    if (!GameInstance->GetWorld()->GetTimerManager().TimerExists(InOutHandle))
+        InOutHandle = GameInstance->GetWorld()->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(InUserObject, inTimerMethod, Vars...));
 }
 
 inline void UFairyApplication::CancelDelayCall(FTimerHandle& InHandle)
 {
-    World->GetTimerManager().ClearTimer(InHandle);
+    GameInstance->GetWorld()->GetTimerManager().ClearTimer(InHandle);
 }
