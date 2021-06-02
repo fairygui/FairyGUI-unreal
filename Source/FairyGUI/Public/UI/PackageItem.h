@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/Texture2D.h"
 #include "FieldTypes.h"
+#include "Engine.h"
 #include "FairyCommons.h"
 #include "Widgets/HitTest.h"
 

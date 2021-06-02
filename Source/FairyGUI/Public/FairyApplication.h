@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/GameViewportClient.h"
+#include "Engine.h"
 #include "Framework/Application/IInputProcessor.h"
 #include "FairyCommons.h"
 #include "Event/EventContext.h"
