@@ -77,7 +77,7 @@ void UGTree::CollapseAll(UGTreeNode* FolderNode)
 
 void UGTree::CreateCell(UGTreeNode* Node)
 {
-    const FString& url = Node->ResourceURL.IsEmpty() ? DefaultItem : Node->ResourceURL;
+    const FString& url = Node->ResourceURL.IsEmpty() ? GetDefaultItem() : Node->ResourceURL;
     UGComponent* Child = GetItemPool()->GetObject(url, this)->As<UGComponent>();
     verifyf(Child != nullptr, TEXT("Unable to create tree cell"));
 
@@ -353,7 +353,7 @@ void UGTree::ReadItems(FByteBuffer* Buffer)
         str = Buffer->ReadS();
         if (!str.IsEmpty())
         {
-            str = DefaultItem;
+            str = GetDefaultItem();
             if (str.IsEmpty())
             {
                 Buffer->SetPos(nextPos);

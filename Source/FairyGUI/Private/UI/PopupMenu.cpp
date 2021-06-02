@@ -70,7 +70,7 @@ UGButton* UPopupMenu::AddItem(const FString& Caption, const FGUIEventDynDelegate
 
 UGButton* UPopupMenu::AddItemAt(const FString& Caption, int32 Index, FGUIEventDelegate Callback)
 {
-    UGButton* item = List->GetFromPool(List->DefaultItem)->As<UGButton>();
+    UGButton* item = List->GetFromPool(List->GetDefaultItem())->As<UGButton>();
     List->AddChildAt(item, Index);
 
     item->SetTitle(Caption);

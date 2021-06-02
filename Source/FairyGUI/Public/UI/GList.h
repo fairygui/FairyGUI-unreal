@@ -21,6 +21,11 @@ public:
     virtual ~UGList();
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    const FString& GetDefaultItem() const { return DefaultItem; }
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    void SetDefaultItem(const FString& InDefaultItem);
+
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     EListLayoutType GetLayout() const { return Layout; }
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     void SetLayout(EListLayoutType InLayout);
@@ -175,9 +180,6 @@ public:
     FGUIEventDynMDelegate OnClickItem;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
-    FString DefaultItem;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
     bool bScrollItemToViewOnClick;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "FairyGUI")
@@ -224,6 +226,7 @@ private:
 
     void HandleAlign(float InContentWidth, float InContentHeight);
 
+    FString DefaultItem;
     EListLayoutType Layout;
     int32 LineCount;
     int32 ColumnCount;

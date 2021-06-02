@@ -34,6 +34,11 @@ UGList::~UGList()
     bScrollItemToViewOnClick = false;
 }
 
+void UGList::SetDefaultItem(const FString& InDefaultItem)
+{
+    DefaultItem = UUIPackage::NormalizeURL(InDefaultItem);
+}
+
 void UGList::SetLayout(EListLayoutType InLayout)
 {
     if (Layout != InLayout)
@@ -2435,7 +2440,7 @@ void UGList::ReadItems(FByteBuffer* Buffer)
                 continue;
             }
         }
-        
+
         UGObject* obj = GetFromPool(*str);
         if (obj != nullptr)
         {
