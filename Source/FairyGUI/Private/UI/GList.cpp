@@ -6,6 +6,7 @@
 #include "UI/UIPackage.h"
 #include "Utils/ByteBuffer.h"
 #include "Widgets/SContainer.h"
+#include "FairyApplication.h"
 
 UGList::FItemInfo::FItemInfo() :
     Obj(nullptr),
@@ -1530,7 +1531,7 @@ bool UGList::HandleScroll1(bool forceUpdate)
             if (bAutoResizeItem && (Layout == EListLayoutType::SingleColumn || ColumnCount > 0))
                 ii.Obj->SetSize(FVector2D(partSize, ii.Obj->GetHeight()), true);
 
-            ItemRenderer.Execute(curIndex % NumItems, ii.Obj);
+            ItemRenderer.ExecuteIfBound(curIndex % NumItems, ii.Obj);
             if (curIndex % CurLineItemCount == 0)
             {
                 deltaSize += FMath::CeilToFloat(ii.Obj->GetHeight()) - ii.Size.Y;
@@ -1697,7 +1698,7 @@ bool UGList::HandleScroll2(bool forceUpdate)
             if (bAutoResizeItem && (Layout == EListLayoutType::SingleRow || LineCount > 0))
                 ii.Obj->SetSize(FVector2D(ii.Obj->GetWidth(), partSize), true);
 
-            ItemRenderer.Execute(curIndex % NumItems, ii.Obj);
+            ItemRenderer.ExecuteIfBound(curIndex % NumItems, ii.Obj);
             if (curIndex % CurLineItemCount == 0)
             {
                 deltaSize += FMath::CeilToFloat(ii.Obj->GetWidth()) - ii.Size.X;
@@ -1874,7 +1875,7 @@ void UGList::HandleScroll3(bool forceUpdate)
                     ii.Obj->SetSize(FVector2D(ii.Obj->GetWidth(), partHeight), true);
             }
 
-            ItemRenderer.Execute(i % NumItems, ii.Obj);
+            ItemRenderer.ExecuteIfBound(i % NumItems, ii.Obj);
             ii.Size.X = FMath::CeilToFloat(ii.Obj->GetWidth());
             ii.Size.Y = FMath::CeilToFloat(ii.Obj->GetHeight());
         }
