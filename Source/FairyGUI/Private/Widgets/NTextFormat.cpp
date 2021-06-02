@@ -1,5 +1,6 @@
 #include "Widgets/NTextFormat.h"
 #include "UI/UIConfig.h"
+#include "UI/UIPackage.h"
 
 FNTextFormat::FNTextFormat() :
     Size(12),
@@ -34,10 +35,21 @@ FTextBlockStyle FNTextFormat::GetStyle() const
     const FString& FontFace = Face.IsEmpty() ? FUIConfig::Config.DefaultFont : Face;
     if (!FontFace.StartsWith("ui://"))
     {
-        FSlateFontInfo Font = FCoreStyle::GetDefaultFontStyle(*FontFace, Size * 0.75f);
-        Font.OutlineSettings.OutlineSize = OutlineSize;
-        Font.OutlineSettings.OutlineColor = OutlineColor;
-        Style.SetFont(Font);
+        const UObject* Font = UUIPackageStatic::Get().Fonts.FindRef(FontFace);
+        if (Font != nullptr)
+        {
+            FSlateFontInfo SlateFont(Font, Size * 0.75f);
+            SlateFont.OutlineSettings.OutlineSize = OutlineSize;
+            SlateFont.OutlineSettings.OutlineColor = OutlineColor;
+            Style.SetFont(SlateFont);
+        }
+        else
+        {
+            FSlateFontInfo SlateFont = FCoreStyle::GetDefaultFontStyle(*FontFace, Size * 0.75f);
+            SlateFont.OutlineSettings.OutlineSize = OutlineSize;
+            SlateFont.OutlineSettings.OutlineColor = OutlineColor;
+            Style.SetFont(SlateFont);
+        }
     }
 
     Style.SetColorAndOpacity(FSlateColor(FLinearColor(Color)));

@@ -57,6 +57,10 @@ public:
     static int32 Constructing;
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "FairyGUI")
+    static void RegisterFont(const FString& FontFace, UObject* Font);
+
+public:
     UUIPackage();
     virtual  ~UUIPackage();
 
@@ -118,4 +122,6 @@ public:
     TMap<FString, UUIPackage*> PackageInstByName;
     TMap<FString, FString> Vars;
     FString Branch;
+    UPROPERTY(Transient)
+    TMap<FString, UObject*> Fonts;
 };

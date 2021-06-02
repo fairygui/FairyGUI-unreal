@@ -291,6 +291,11 @@ UGObject* UUIPackage::CreateObject(const TSharedPtr<FPackageItem>& Item, UObject
     return g;
 }
 
+void UUIPackage::RegisterFont(const FString& FontFace, UObject* Font)
+{
+    UUIPackageStatic::Get().Fonts.Add(FontFace, Font);
+}
+
 void UUIPackage::Load(FByteBuffer* Buffer)
 {
     if (Buffer->ReadUint() != 0x46475549)
