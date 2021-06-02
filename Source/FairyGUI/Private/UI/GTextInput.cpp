@@ -181,6 +181,5 @@ void UGTextInput::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
     Buffer->Seek(BeginPos, 6);
 
     const FString& str = Buffer->ReadS();
-    if (!str.IsEmpty())
-        SetText(str);
+    SetText(str);
 }

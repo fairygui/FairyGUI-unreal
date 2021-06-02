@@ -12,6 +12,7 @@ public:
     void SetTextFormat(const FNTextFormat& InTextFormat)
     {
         EditableTextLayout->SetTextStyle(InTextFormat.GetStyle());
+        EditableTextLayout->SetJustification((ETextJustify::Type)InTextFormat.Align);
     }
 
     void SetOnTextChanged(FOnTextChanged Callback)
