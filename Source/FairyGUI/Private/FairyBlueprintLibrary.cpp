@@ -1,4 +1,7 @@
 #include "FairyBlueprintLibrary.h"
+#include "UI/UIConfig.h"
+#include "UI/UIObjectFactory.h"
+#include "Tween/GTween.h"
 
 const FUIConfig& UFairyBlueprintLibrary::GetUIConfig()
 {

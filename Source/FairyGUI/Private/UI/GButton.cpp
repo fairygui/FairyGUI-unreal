@@ -3,6 +3,7 @@
 #include "UI/GLabel.h"
 #include "UI/GController.h"
 #include "Utils/ByteBuffer.h"
+#include "FairyApplication.h"
 
 const FString UGButton::UP = "up";
 const FString UGButton::DOWN = "down";

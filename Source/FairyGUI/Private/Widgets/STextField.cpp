@@ -2,6 +2,9 @@
 #include "Internationalization/BreakIterator.h"
 #include "Utils/HTMLParser.h"
 #include "Widgets/LoaderRun.h"
+#include "Widgets/BitmapFontRun.h"
+#include "UI/GObject.h"
+#include "UI/UIPackage.h"
 
 STextField::STextField() :
     bHTML(false),

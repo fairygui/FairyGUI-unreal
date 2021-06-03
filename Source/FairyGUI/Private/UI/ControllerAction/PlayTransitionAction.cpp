@@ -1,6 +1,7 @@
 #include "UI/ControllerAction/PlayTransitionAction.h"
 #include "UI/GController.h"
 #include "UI/Transition.h"
+#include "UI/GComponent.h"
 #include "Utils/ByteBuffer.h"
 
 FPlayTransitionAction::FPlayTransitionAction() :

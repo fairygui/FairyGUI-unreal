@@ -1,10 +1,10 @@
 #include "UI/DragDropManager.h"
 #include "UI/UIObjectFactory.h"
+#include "UI/GRoot.h"
 #include "FairyApplication.h"
 
 UDragDropManager::UDragDropManager()
 {
-
 }
 
 UDragDropManager::~UDragDropManager()

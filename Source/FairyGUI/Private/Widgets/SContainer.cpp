@@ -1,6 +1,7 @@
 
 #include "Widgets/SContainer.h"
 #include "FairyApplication.h"
+#include "UI/GObject.h"
 
 SContainer::SContainer() :
     Children(this)

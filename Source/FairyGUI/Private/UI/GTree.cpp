@@ -1,5 +1,7 @@
 #include "UI/GTree.h"
 #include "Utils/ByteBuffer.h"
+#include "UI/GController.h"
+#include "UI/GObjectPool.h"
 
 UGTree::UGTree() :
     Indent(30)
