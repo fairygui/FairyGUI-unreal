@@ -1,4 +1,5 @@
 #include "UI/DragDropManager.h"
+#include "UI/UIObjectFactory.h"
 #include "FairyApplication.h"
 
 UDragDropManager::UDragDropManager()
