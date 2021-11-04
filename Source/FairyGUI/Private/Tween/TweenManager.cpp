@@ -13,7 +13,7 @@ FTweenManager::FTweenManager()
 FTweenManager::~FTweenManager()
 {
     Reset();
-    delete ActiveTweens;
+    delete []ActiveTweens;
 }
 
 void FTweenManager::Reset()
