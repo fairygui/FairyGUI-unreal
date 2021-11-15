@@ -13,7 +13,7 @@ FTweenManager::FTweenManager()
 FTweenManager::~FTweenManager()
 {
     Reset();
-    delete ActiveTweens;
+    delete []ActiveTweens;
 }
 
 void FTweenManager::Reset()
@@ -59,7 +59,7 @@ FGTweener* FTweenManager::CreateTween()
         int32 newLen = ArrayLength + FMath::CeilToInt(ArrayLength * 0.5f);
         FGTweener** newArray = new FGTweener*[newLen];
         FMemory::Memcpy(newArray, ActiveTweens, ArrayLength * sizeof(FGTweener*));
-        delete ActiveTweens;
+        delete []ActiveTweens;
         ActiveTweens = newArray;
         ArrayLength = newLen;
     }
