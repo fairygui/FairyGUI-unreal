@@ -1082,6 +1082,24 @@ void UGComponent::ConstructFromResource(TArray<UGObject*>* ObjectPool, int32 Poo
         SetHitArea(MakeShareable(new FChildHitTest(GetChildAt(i2))));
     }
 
+    if (Buffer->Version >= 5)
+    {
+        const FString& enterSound = Buffer->ReadS();
+        if (!enterSound.IsEmpty()) {
+            On(FUIEvents::AddedToStage).AddLambda([this, enterSound](UEventContext*) {
+                GetApp()->PlaySound(enterSound, 1);
+            });
+        }
+
+
+        const FString& leaveSound = Buffer->ReadS();
+        if (!leaveSound.IsEmpty()) {
+            On(FUIEvents::RemovedFromStage).AddLambda([this, leaveSound](UEventContext*) {
+                GetApp()->PlaySound(leaveSound, 1);
+            });
+        }
+    }
+
     Buffer->Seek(0, 5);
 
     int32 transitionCount = Buffer->ReadShort();
