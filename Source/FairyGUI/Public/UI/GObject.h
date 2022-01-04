@@ -302,7 +302,7 @@ public:
     FGUIEventDynMDelegate OnAddedToStage;
 
     UPROPERTY(BlueprintAssignable, Category = "FairyGUI|Event")
-    FGUIEventDynMDelegate OnRemoveFromStage;
+    FGUIEventDynMDelegate OnRemovedFromStage;
 
 public:
     UPROPERTY(Transient, BlueprintReadOnly, Category = "FairyGUI")
