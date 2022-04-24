@@ -176,6 +176,8 @@ void UGTextInput::SetupBeforeAdd(FByteBuffer* Buffer, int32 BeginPos)
 
 void UGTextInput::SetupAfterAdd(FByteBuffer* Buffer, int32 BeginPos)
 {
+    UGObject::SetupAfterAdd(Buffer, BeginPos);
+
     ApplyFormat();
 
     Buffer->Seek(BeginPos, 6);
