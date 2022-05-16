@@ -20,7 +20,7 @@ UGComponent::UGComponent() :
 {
     DisplayObject = RootContainer = SNew(SContainer).GObject(this);
     DisplayObject->SetOpaque(false);
-
+    
     Container = SNew(SContainer);
     Container->SetOpaque(false);
     RootContainer->AddChild(Container.ToSharedRef());

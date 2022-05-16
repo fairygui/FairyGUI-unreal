@@ -30,7 +30,7 @@ public:
 
     virtual TSharedRef< ILayoutBlock > CreateBlock(int32 StartIndex, int32 EndIndex, FVector2D Size, const FLayoutBlockTextContext& TextContext, const TSharedPtr< IRunRenderer >& Renderer) override;
 
-    virtual int32 OnPaint(const FPaintArgs& Args, const FTextLayout::FLineView& Line, const TSharedRef< ILayoutBlock >& Block, const FTextBlockStyle& DefaultStyle, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+    virtual int32 OnPaint(const FPaintArgs& PaintArgs, const FTextArgs& TextArgs, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
     virtual const TArray< TSharedRef<SWidget> >& GetChildren() override;
 
@@ -54,6 +54,11 @@ public:
     virtual ERunAttributes GetRunAttributes() const override;
 
     virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
+
+    virtual FString GetReferencerName() const override
+    {
+        return TEXT("FLoaderRun");
+    };
 
 protected:
     FLoaderRun(UFairyApplication* App, const FHTMLElement& HTMLElement, const TSharedRef< const FString >& InText, const FTextRange& InRange);

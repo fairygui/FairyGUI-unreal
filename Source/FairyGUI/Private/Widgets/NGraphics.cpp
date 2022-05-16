@@ -91,7 +91,7 @@ void FNGraphics::Paint(const FGeometry& AllottedGeometry,
     int32 VerticeLength = Vertices.Num();
     for (int32 i = 0; i < VerticeLength; i++)
     {
-        Vertices[i].Position = AllottedGeometry.LocalToAbsolute(PositionsBackup[i]);
+        Vertices[i].Position =FVector2f(AllottedGeometry.LocalToAbsolute(PositionsBackup[i]));
     }
 
     FSlateDrawElement::MakeCustomVerts(OutDrawElements, LayerId, ResourceHandle, Vertices, Triangles, nullptr, 0, 0, DrawEffects);
@@ -157,7 +157,7 @@ void FNGraphics::UpdateMeshNow()
         AlphaBackup[i] = Vertex.Color.A;
         Vertex.Color.A = (uint8)FMath::Clamp<int32>(FMath::TruncToInt(Vertex.Color.A * UsingAlpha), 0, 255),
 
-        PositionsBackup[i] = Vertex.Position;
+        PositionsBackup[i] = FVector2D(Vertex.Position);
     }
 
     Vertices += Helper.Vertices;

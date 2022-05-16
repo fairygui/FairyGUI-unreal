@@ -8,10 +8,10 @@ UNTexture* UNTexture::GetWhiteTexture()
     if (WhiteTexture == nullptr)
     {
         UTexture2D* NativeTexture = UTexture2D::CreateTransient(2, 2);
-        uint8* MipData = (uint8*)NativeTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+        uint8* MipData = (uint8*)NativeTexture->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
         for (int32 i = 0; i < 16; i++)
             *(MipData + i) = 255;
-        NativeTexture->PlatformData->Mips[0].BulkData.Unlock();
+        NativeTexture->GetPlatformData()->Mips[0].BulkData.Unlock();
 #if WITH_EDITORONLY_DATA
         NativeTexture->CompressionNone = true;
         NativeTexture->MipGenSettings = TMGS_NoMipmaps;

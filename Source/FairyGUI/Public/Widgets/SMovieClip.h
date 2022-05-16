@@ -17,6 +17,11 @@ struct FAIRYGUI_API FMovieClipData : public FGCObject
 
     FMovieClipData();
     virtual void AddReferencedObjects(FReferenceCollector& Collector) override;
+
+    virtual FString GetReferencerName() const override
+    {
+        return TEXT("FMovieClip");
+    };
 };
 
 class FAIRYGUI_API SMovieClip : public SFImage

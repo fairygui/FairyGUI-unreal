@@ -30,7 +30,7 @@ void FVertexHelper::AddVertex(const FVector2D& Position, const FColor& Color)
 void FVertexHelper::AddVertex(const FVector2D& Position, const FColor& Color, const FVector2D& TexCoords)
 {
     FSlateVertex Vertex;
-    Vertex.Position = Position;
+    Vertex.Position = FVector2f(Position);
     Vertex.Color = Color;
     Vertex.TexCoords[0] = TexCoords.X;
     Vertex.TexCoords[1] = TexCoords.Y;
@@ -117,8 +117,8 @@ const FVector2D& FVertexHelper::GetPosition(int32 Index)
 {
     if (Index < 0)
         Index = Vertices.Num() + Index;
-
-    return Vertices[Index].Position;
+    
+    return FVector2D(Vertices[Index].Position);
 }
 
 FVector2D FVertexHelper::GetUVAtPosition(const FVector2D& Position, bool bUsePercent)

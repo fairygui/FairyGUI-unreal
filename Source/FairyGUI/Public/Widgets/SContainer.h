@@ -5,10 +5,49 @@
 class FAIRYGUI_API SContainer : public SDisplayObject
 {
 public:
-    SLATE_BEGIN_ARGS(SContainer) :
-        _GObject(nullptr)
-    {}
+    
+    class FSlot : public TSlotBase<FSlot>
+    {
+    public:	
+        SLATE_SLOT_BEGIN_ARGS(FSlot, TSlotBase<FSlot>)
+        SLATE_SLOT_END_ARGS()
+
+        FSlot(const TSharedRef<SWidget>& InWidget);
+        
+        FSlot(const FChildren& InParent);
+
+        FSlot()
+        {
+        }
+
+        void Construct(const FChildren& SlotOwner, FSlotArguments&& InArg);
+        
+    };
+    
+    static FSlot::FSlotArguments Slot(const TSharedRef<SWidget>& InWidget)
+    {
+        return FSlot::FSlotArguments(MakeUnique<FSlot>(InWidget));
+    }
+    
+    using SContainerSlotArguments = TPanelChildren<FSlot>::FScopedWidgetSlotArguments;
+    
+    SContainerSlotArguments AddSlot(const TSharedRef<SWidget>& InWidget)
+    {
+        return InsertSlot(InWidget,INDEX_NONE);
+    }
+    
+    SContainerSlotArguments InsertSlot(const TSharedRef<SWidget>& InWidget,int32 Index = INDEX_NONE)
+    {
+        return SContainerSlotArguments{MakeUnique<FSlot>(InWidget), this->Children, Index};
+    }
+
+    SLATE_BEGIN_ARGS(SContainer) 
+       : _GObject(nullptr)
+    {
+        _Visibility = EVisibility::SelfHitTestInvisible;
+    }
     SLATE_ARGUMENT(UGObject*, GObject)
+    SLATE_SLOT_ARGUMENT( SContainer::FSlot, Slots )
     SLATE_END_ARGS()
 
     SContainer();
@@ -30,5 +69,5 @@ public:
     virtual FChildren* GetChildren() override;
 
 protected:
-    TPanelChildren<FSlotBase> Children;
+    TPanelChildren<FSlot> Children;
 };
