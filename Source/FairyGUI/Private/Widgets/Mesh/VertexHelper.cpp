@@ -118,7 +118,7 @@ const FVector2D& FVertexHelper::GetPosition(int32 Index)
     if (Index < 0)
         Index = Vertices.Num() + Index;
     
-    return FVector2D(Vertices[Index].Position);
+    return *new FVector2D(Vertices[Index].Position);
 }
 
 FVector2D FVertexHelper::GetUVAtPosition(const FVector2D& Position, bool bUsePercent)

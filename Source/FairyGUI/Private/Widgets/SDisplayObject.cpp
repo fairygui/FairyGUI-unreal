@@ -29,10 +29,11 @@ const FVector2D& SDisplayObject::GetPosition() const
         return FVector2D::ZeroVector;
     else
     {
-        return GetRenderTransform()->GetTranslation();
+        FVector2D& fv = *new FVector2D() ;
+        fv = GetRenderTransform()->GetTranslation();
+        return  fv;
     }
-        
-        
+    
 }
 
 void SDisplayObject::SetPosition(const FVector2D& InPosition)
