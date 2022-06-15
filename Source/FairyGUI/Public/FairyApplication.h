@@ -167,6 +167,7 @@ private:
 template< class UserClass, typename... VarTypes >
 void UFairyApplication::DelayCall(FTimerHandle& InOutHandle, UserClass* InUserObject, typename TMemFunPtrType<false, UserClass, void(VarTypes...)>::Type inTimerMethod, VarTypes... Vars)
 {
+    //PR:游戏暂停时，TimerManager也会暂停。DelayCall不能正常执行导致界面无法打开或更新。
     if (!GameInstance->GetWorld()->GetTimerManager().TimerExists(InOutHandle))
         InOutHandle = GameInstance->GetWorld()->GetWorld()->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(InUserObject, inTimerMethod, Vars...));
 }
