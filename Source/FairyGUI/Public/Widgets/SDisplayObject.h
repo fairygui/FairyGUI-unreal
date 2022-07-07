@@ -23,7 +23,7 @@ public:
     SDisplayObject();
     void Construct(const FArguments& InArgs);
 
-    const FVector2D& GetPosition() const;
+    const FVector2D GetPosition() const;
     void SetPosition(const FVector2D& InPosition);
     void SetX(float InX);
     void SetY(float InY);

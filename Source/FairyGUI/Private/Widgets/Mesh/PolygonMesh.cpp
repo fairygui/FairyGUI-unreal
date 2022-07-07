@@ -103,12 +103,12 @@ void FPolygonMesh::DrawOutline(FVertexHelper& Helper)
     int32 start = k - numVertices;
     for (int32 i = 0; i < numVertices; i++)
     {
-        const FVector2D& p0 = Helper.Vertices[start + i].Position;
+        const FVector2D& p0 = static_cast<FVector2D>(Helper.Vertices[start + i].Position);
         FVector2D p1;
         if (i < numVertices - 1)
-            p1 = Helper.Vertices[start + i + 1].Position;
+            p1 = static_cast<FVector2D>(Helper.Vertices[start + i + 1].Position);
         else
-            p1 = Helper.Vertices[start].Position;
+            p1 = static_cast<FVector2D>(Helper.Vertices[start].Position);
 
         FVector2D widthVector(p1.Y - p0.Y, p0.X - p1.X);
         widthVector.Normalize();

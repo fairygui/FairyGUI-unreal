@@ -1227,7 +1227,7 @@ void UGList::OnScrollHandler(UEventContext* Context)
     HandleScroll(false);
 }
 
-int32 UGList::GetIndexOnPos1(float& pos, bool forceUpdate)
+int32 UGList::GetIndexOnPos1(double& pos, bool forceUpdate)
 {
     if (RealNumItems < CurLineItemCount)
     {
@@ -1291,7 +1291,7 @@ int32 UGList::GetIndexOnPos1(float& pos, bool forceUpdate)
     }
 }
 
-int32 UGList::GetIndexOnPos2(float& pos, bool forceUpdate)
+int32 UGList::GetIndexOnPos2(double& pos, bool forceUpdate)
 {
     if (RealNumItems < CurLineItemCount)
     {
@@ -1355,7 +1355,7 @@ int32 UGList::GetIndexOnPos2(float& pos, bool forceUpdate)
     }
 }
 
-int32 UGList::GetIndexOnPos3(float& pos, bool forceUpdate)
+int32 UGList::GetIndexOnPos3(double& pos, bool forceUpdate)
 {
     if (RealNumItems < CurLineItemCount)
     {
@@ -1428,7 +1428,7 @@ void UGList::HandleScroll(bool forceUpdate)
 
 bool UGList::HandleScroll1(bool forceUpdate)
 {
-    float pos = ScrollPane->GetScrollingPosY();
+    double pos = ScrollPane->GetScrollingPosY();
     float max = pos + ScrollPane->GetViewSize().Y;
     bool end = max == ScrollPane->GetContentSize().Y;
 
@@ -1595,7 +1595,7 @@ bool UGList::HandleScroll1(bool forceUpdate)
 
 bool UGList::HandleScroll2(bool forceUpdate)
 {
-    float pos = ScrollPane->GetScrollingPosX();
+    double pos = ScrollPane->GetScrollingPosX();
     float max = pos + ScrollPane->GetViewSize().X;
     bool end = pos == ScrollPane->GetContentSize().X;
 
@@ -1762,7 +1762,7 @@ bool UGList::HandleScroll2(bool forceUpdate)
 
 void UGList::HandleScroll3(bool forceUpdate)
 {
-    float pos = ScrollPane->GetScrollingPosX();
+    double pos = ScrollPane->GetScrollingPosX();
 
     int32 newFirstIndex = GetIndexOnPos3(pos, forceUpdate);
     if (newFirstIndex == FirstIndex && !forceUpdate)

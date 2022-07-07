@@ -79,24 +79,24 @@ FVector2D FBitmapFontRun::GetLocationAt(const TSharedRef< ILayoutBlock >& Block,
     return Block->GetLocationOffset();
 }
 
-int32 FBitmapFontRun::OnPaint(const FPaintArgs& Args, const FTextLayout::FLineView& Line, const TSharedRef< ILayoutBlock >& Block, const FTextBlockStyle& DefaultStyle, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
+int32 FBitmapFontRun::OnPaint(const FPaintArgs& Args, const FTextArgs& TextArgs, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const
 {
     if (Glyph == nullptr)
         return LayerId;
 
     // The block size and offset values are pre-scaled, so we need to account for that when converting the block offsets into paint geometry
     const float InverseScale = Inverse(AllottedGeometry.Scale);
-
+    
     FLinearColor FinalColorAndOpacity;
     if (Font->bCanTint)
-        FinalColorAndOpacity = InWidgetStyle.GetColorAndOpacityTint() * DefaultStyle.ColorAndOpacity.GetSpecifiedColor();
+        FinalColorAndOpacity = InWidgetStyle.GetColorAndOpacityTint() *  TextArgs.DefaultStyle.ColorAndOpacity.GetSpecifiedColor();
     else
         FinalColorAndOpacity = InWidgetStyle.GetColorAndOpacityTint();
     const ESlateDrawEffect DrawEffects = bParentEnabled ? ESlateDrawEffect::None : ESlateDrawEffect::DisabledEffect;
     FSlateDrawElement::MakeBox(
         OutDrawElements,
         ++LayerId,
-        AllottedGeometry.ToPaintGeometry(Glyph->Size, FSlateLayoutTransform(TransformPoint(InverseScale, Block->GetLocationOffset()) + Glyph->Offset)),
+        AllottedGeometry.ToPaintGeometry(Glyph->Size, FSlateLayoutTransform(TransformPoint(InverseScale,  TextArgs.Block->GetLocationOffset()) + Glyph->Offset)),
         &Brush,
         DrawEffects,
         FinalColorAndOpacity

@@ -24,7 +24,7 @@ void SDisplayObject::Construct(const SDisplayObject::FArguments& InArgs)
     SetTag(InArgs._Tag);
 }
 
-const FVector2D& SDisplayObject::GetPosition() const
+const FVector2D SDisplayObject::GetPosition() const
 {
     if (!GetRenderTransform().IsSet())
         return FVector2D::ZeroVector;
@@ -114,7 +114,7 @@ void SDisplayObject::UpdateVisibilityFlags()
     else if (!HitTestFlag)
         SetVisibility(EVisibility::HitTestInvisible);
     else  if (GObject.IsValid() && GObject->GetHitArea() != nullptr)
-        Visibility.BindRaw(this, &SDisplayObject::GetVisibilityFlags);
+        Visibility.Bind(this, &SDisplayObject::GetVisibilityFlags);
     else if (!bOpaque)
         SetVisibility(EVisibility::SelfHitTestInvisible);
     else

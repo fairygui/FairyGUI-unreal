@@ -24,7 +24,7 @@ public:
     void AddTriangles(const SlateIndex* Indice, int32 IndiceLength, int32 StartVertexIndex = 0);
     void AddTriangles(int32 StartVertexIndex = 0);
 
-    const FVector2D& GetPosition(int32 Index);
+    const FVector2D GetPosition(int32 Index);
     FVector2D GetUVAtPosition(const FVector2D& Position, bool bUsePercent);
 
     void Append(const FVertexHelper& VertexHelper);

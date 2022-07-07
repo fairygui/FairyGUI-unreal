@@ -212,9 +212,9 @@ private:
 
     void OnScrollHandler(UEventContext* Context);
 
-    int32 GetIndexOnPos1(float& pos, bool forceUpdate);
-    int32 GetIndexOnPos2(float& pos, bool forceUpdate);
-    int32 GetIndexOnPos3(float& pos, bool forceUpdate);
+    int32 GetIndexOnPos1(double& pos, bool forceUpdate);
+    int32 GetIndexOnPos2(double& pos, bool forceUpdate);
+    int32 GetIndexOnPos3(double& pos, bool forceUpdate);
 
     void HandleScroll(bool forceUpdate);
     bool HandleScroll1(bool forceUpdate);
