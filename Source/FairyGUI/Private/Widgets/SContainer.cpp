@@ -1,10 +1,26 @@
 
 #include "Widgets/SContainer.h"
 #include "FairyApplication.h"
+#include "UI/GComponent.h"
 #include "UI/GObject.h"
 
-SContainer::SContainer() :
-    Children(this)
+SContainer::FSlot::FSlot(const TSharedRef<SWidget>& InWidget)
+    : TSlotBase<FSlot>(InWidget)
+{
+}
+
+SContainer::FSlot::FSlot(const FChildren& InParent)
+{
+    
+}
+
+void SContainer::FSlot::Construct(const FChildren& SlotOwner, FSlotArguments&& InArg)
+{
+        TSlotBase<FSlot>::Construct(SlotOwner, MoveTemp(InArg));
+}
+
+SContainer::SContainer()
+     :Children(this)
 {
     bCanSupportFocus = false;
 }
@@ -12,6 +28,7 @@ SContainer::SContainer() :
 void SContainer::Construct(const SContainer::FArguments& InArgs)
 {
     SDisplayObject::Construct(SDisplayObject::FArguments().GObject(InArgs._GObject));
+    Children.AddSlots(MoveTemp(const_cast<TArray<FSlot::FSlotArguments>&>(InArgs._Slots)));
 }
 
 void SContainer::AddChild(const TSharedRef<SWidget>& SlotWidget)
@@ -29,14 +46,12 @@ void SContainer::AddChildAt(const TSharedRef<SWidget>& SlotWidget, int32 Index)
     else
     {
         verifyf(!SlotWidget->GetParentWidget().IsValid(), TEXT("Cant add a child has parent"));
-
-        FSlotBase& NewSlot = *new FSlotBase();
-        if (Index == Count)
-            Children.Add(&NewSlot);
-        else
-            Children.Insert(&NewSlot, Index);
-        NewSlot.AttachWidget(SlotWidget);
-
+        
+            if (Index == Count)
+                AddSlot(SlotWidget);
+            else
+                InsertSlot(SlotWidget,Index);
+            
         UGObject* OnStageObj = SDisplayObject::GetWidgetGObjectIfOnStage(AsShared());
         if (OnStageObj != nullptr)
         {

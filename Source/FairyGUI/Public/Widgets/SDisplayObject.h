@@ -13,6 +13,7 @@ public:
         _GObject(nullptr),
         _Tag(SDisplayObject::SDisplayObjectTag)
     {
+        _Visibility = EVisibility::SelfHitTestInvisible;
     }
     SLATE_ARGUMENT(UGObject*, GObject)
     SLATE_ARGUMENT(FName, Tag)
@@ -53,6 +54,8 @@ public:
     virtual void OnMouseLeave(const FPointerEvent& MouseEvent) override;
     virtual FReply OnMouseWheel(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent) override;
 
+    virtual void SetVisibility( TAttribute<EVisibility> InVisibility ) override final;
+
     TWeakObjectPtr<class UGObject> GObject;
 
     static bool IsWidgetOnStage(const TSharedPtr<SWidget>& InWidget);
@@ -77,7 +80,4 @@ protected:
     FVector2D Size;
 
     static bool bMindVisibleOnly;
-
-private:
-    static FNoChildren NoChildrenInstance;
 };

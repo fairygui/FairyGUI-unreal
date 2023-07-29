@@ -4,7 +4,6 @@
 #include "UI/GObject.h"
 
 bool SDisplayObject::bMindVisibleOnly = false;
-FNoChildren SDisplayObject::NoChildrenInstance;
 FName SDisplayObject::SDisplayObjectTag("SDisplayObjectTag");
 
 SDisplayObject::SDisplayObject() :
@@ -29,7 +28,12 @@ const FVector2D& SDisplayObject::GetPosition() const
     if (!GetRenderTransform().IsSet())
         return FVector2D::ZeroVector;
     else
-        return GetRenderTransform()->GetTranslation();
+    {
+        FVector2D& fv = *new FVector2D() ;
+        fv = GetRenderTransform()->GetTranslation();
+        return  fv;
+    }
+    
 }
 
 void SDisplayObject::SetPosition(const FVector2D& InPosition)
@@ -108,13 +112,14 @@ void SDisplayObject::SetInteractable(bool bInInteractable)
 
 void SDisplayObject::UpdateVisibilityFlags()
 {
+    
     bool HitTestFlag = bInteractable && bTouchable;
     if (!bVisible)
         SetVisibility(EVisibility::Collapsed);
     else if (!HitTestFlag)
         SetVisibility(EVisibility::HitTestInvisible);
     else  if (GObject.IsValid() && GObject->GetHitArea() != nullptr)
-        Visibility.BindRaw(this, &SDisplayObject::GetVisibilityFlags);
+        SetVisibility(TAttribute<EVisibility>(this, &SDisplayObject::GetVisibilityFlags));   
     else if (!bOpaque)
         SetVisibility(EVisibility::SelfHitTestInvisible);
     else
@@ -157,7 +162,7 @@ FVector2D SDisplayObject::ComputeDesiredSize(float) const
 
 FChildren* SDisplayObject::GetChildren()
 {
-    return &NoChildrenInstance;
+    return &FNoChildren::NoChildrenInstance;
 }
 
 void SDisplayObject::OnArrangeChildren(const FGeometry& AllottedGeometry, FArrangedChildren& ArrangedChildren) const
@@ -226,6 +231,11 @@ FReply SDisplayObject::OnMouseWheel(const FGeometry& MyGeometry, const FPointerE
         return Obj->GetApp()->OnWidgetMouseWheel(AsShared(), MyGeometry, MouseEvent);
     else
         return FReply::Unhandled();
+}
+
+void SDisplayObject::SetVisibility(TAttribute<EVisibility> InVisibility)
+{
+    SWidget::SetVisibility(InVisibility);
 }
 
 bool SDisplayObject::IsWidgetOnStage(const TSharedPtr<SWidget>& InWidget)

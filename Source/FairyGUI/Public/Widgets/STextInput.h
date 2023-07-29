@@ -28,5 +28,5 @@ public:
     TSharedRef<class SMultiLineEditableText> Widget;
 
 protected:
-    FSimpleSlot ChildSlot;
+    FSingleWidgetChildrenWithSlot ChildSlot;
 };

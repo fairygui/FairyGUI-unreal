@@ -832,7 +832,7 @@ void UGList::ScrollToView(int32 Index, bool bAnimation, bool bSetFirst)
         verifyf(Index >= 0 && Index < VirtualItems.Num(), TEXT("Invalid child index"));
 
         if (bLoop)
-            Index = FMath::FloorToFloat(FirstIndex / NumItems) * NumItems + Index;
+            Index = FMath::FloorToFloat(static_cast<float>(FirstIndex) / NumItems) * NumItems + Index;
 
         FBox2D rect;
         FItemInfo& ii = VirtualItems[Index];
@@ -1072,19 +1072,19 @@ FVector2D UGList::GetSnappingPosition(const FVector2D& InPoint)
         FVector2D ret = InPoint;
         if (Layout == EListLayoutType::SingleColumn || Layout == EListLayoutType::FlowHorizontal)
         {
-            int32 index = GetIndexOnPos1(ret.Y, false);
+            int32 index = GetIndexOnPos1(reinterpret_cast<float&>(ret.Y), false);
             if (index < VirtualItems.Num() && InPoint.Y - ret.Y > VirtualItems[index].Size.Y / 2 && index < RealNumItems)
                 ret.Y += VirtualItems[index].Size.Y + LineGap;
         }
         else if (Layout == EListLayoutType::SingleRow || Layout == EListLayoutType::FlowVertical)
         {
-            int32 index = GetIndexOnPos2(ret.X, false);
+            int32 index = GetIndexOnPos2(reinterpret_cast<float&>(ret.X), false);
             if (index < VirtualItems.Num() && InPoint.X - ret.X > VirtualItems[index].Size.X / 2 && index < RealNumItems)
                 ret.X += VirtualItems[index].Size.X + ColumnGap;
         }
         else
         {
-            int32 index = GetIndexOnPos3(ret.X, false);
+            int32 index = GetIndexOnPos3(reinterpret_cast<float&>(ret.X), false);
             if (index < VirtualItems.Num() && InPoint.X - ret.X > VirtualItems[index].Size.X / 2 && index < RealNumItems)
                 ret.X += VirtualItems[index].Size.X + ColumnGap;
         }

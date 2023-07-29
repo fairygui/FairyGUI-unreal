@@ -224,7 +224,10 @@ void UFairyApplication::PlaySound(const FString& URL, float VolumnScale)
     if (SoundItem.IsValid())
     {
         SoundItem->Load();
-        FSlateApplication::Get().PlaySound(*SoundItem->Sound);
+        if (SoundItem->Sound.IsValid())
+        {
+            FSlateApplication::Get().PlaySound(*SoundItem->Sound);
+        }
     }
 }
 
