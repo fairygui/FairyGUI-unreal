@@ -37,7 +37,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
     const FVector2D& GetPointerPosition() const
     {
-        return PointerEvent->GetScreenSpacePosition();
+        achedPointerPosition = PointerEvent->GetScreenSpacePosition();
+        return CachedPointerPosition;
     }
 
     UFUNCTION(BlueprintCallable, Category = "FairyGUI")
@@ -135,6 +136,7 @@ private:
     bool bDefaultPrevented;
     bool bIsMouseCaptor;
     FPointerEvent* PointerEvent;
+    mutable FVector2D CachedPointerPosition;
     FKeyEvent* KeyEvent;
     int32 ClickCount;
     FNVariant Data;
